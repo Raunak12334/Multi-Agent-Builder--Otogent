@@ -18,19 +18,15 @@ import { generateGoogleFormScript } from "./utils";
 interface Props {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-};
+}
 
-export const GoogleFormTriggerDialog = ({
-  open,
-  onOpenChange
-}: Props) => {
+export const GoogleFormTriggerDialog = ({ open, onOpenChange }: Props) => {
   const params = useParams();
   const workflowId = params.workflowId as string;
 
   // Construct the webhook URL
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"
-  const webhookUrl = 
-    `${baseUrl}/api/webhooks/google-form?workflowId=${workflowId}`;
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+  const webhookUrl = `${baseUrl}/api/webhooks/google-form?workflowId=${workflowId}`;
 
   const copyToClipboard = async () => {
     try {
@@ -53,9 +49,7 @@ export const GoogleFormTriggerDialog = ({
         </DialogHeader>
         <div className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="webhook-url">
-              Webhook URL
-            </Label>
+            <Label htmlFor="webhook-url">Webhook URL</Label>
             <div className="flex gap-2">
               <Input
                 id="webhook-url"

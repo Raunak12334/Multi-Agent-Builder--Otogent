@@ -73,7 +73,7 @@ export const discordExecutor: NodeExecutor<DiscordData> = async ({
           discordChannel().status({
             nodeId,
             status: "error",
-          })
+          }),
         );
         throw new NonRetriableError("Discord node: Variable name is missing");
       }
@@ -85,7 +85,7 @@ export const discordExecutor: NodeExecutor<DiscordData> = async ({
         },
       };
     });
-    
+
     await publish(
       discordChannel().status({
         nodeId,
@@ -95,7 +95,7 @@ export const discordExecutor: NodeExecutor<DiscordData> = async ({
 
     return result;
   } catch (error) {
-     await publish(
+    await publish(
       discordChannel().status({
         nodeId,
         status: "error",

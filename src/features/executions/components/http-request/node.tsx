@@ -32,18 +32,20 @@ export const HttpRequestNode = memo((props: NodeProps<HttpRequestNodeType>) => {
   const handleOpenSettings = () => setDialogOpen(true);
 
   const handleSubmit = (values: HttpRequestFormValues) => {
-    setNodes((nodes) => nodes.map((node) => {
-      if (node.id === props.id) {
-        return {
-          ...node,
-          data: {
-            ...node.data,
-            ...values,
-          }
+    setNodes((nodes) =>
+      nodes.map((node) => {
+        if (node.id === props.id) {
+          return {
+            ...node,
+            data: {
+              ...node.data,
+              ...values,
+            },
+          };
         }
-      }
-      return node;
-    }))
+        return node;
+      }),
+    );
   };
 
   const nodeData = props.data;
@@ -70,7 +72,7 @@ export const HttpRequestNode = memo((props: NodeProps<HttpRequestNodeType>) => {
         onDoubleClick={handleOpenSettings}
       />
     </>
-  )
+  );
 });
 
 HttpRequestNode.displayName = "HttpRequestNode";

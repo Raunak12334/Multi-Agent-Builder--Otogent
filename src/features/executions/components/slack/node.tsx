@@ -30,18 +30,20 @@ export const SlackNode = memo((props: NodeProps<SlackNodeType>) => {
   const handleOpenSettings = () => setDialogOpen(true);
 
   const handleSubmit = (values: SlackFormValues) => {
-    setNodes((nodes) => nodes.map((node) => {
-      if (node.id === props.id) {
-        return {
-          ...node,
-          data: {
-            ...node.data,
-            ...values,
-          }
+    setNodes((nodes) =>
+      nodes.map((node) => {
+        if (node.id === props.id) {
+          return {
+            ...node,
+            data: {
+              ...node.data,
+              ...values,
+            },
+          };
         }
-      }
-      return node;
-    }))
+        return node;
+      }),
+    );
   };
 
   const nodeData = props.data;
@@ -68,7 +70,7 @@ export const SlackNode = memo((props: NodeProps<SlackNodeType>) => {
         onDoubleClick={handleOpenSettings}
       />
     </>
-  )
+  );
 });
 
 SlackNode.displayName = "SlackNode";

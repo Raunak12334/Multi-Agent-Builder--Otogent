@@ -20,10 +20,7 @@ export const StripeTriggerNode = memo((props: NodeProps) => {
 
   return (
     <>
-      <StripeTriggerDialog 
-        open={dialogOpen}
-        onOpenChange={setDialogOpen}
-      />
+      <StripeTriggerDialog open={dialogOpen} onOpenChange={setDialogOpen} />
       <BaseTriggerNode
         {...props}
         icon="/logos/stripe.svg"
@@ -34,5 +31,5 @@ export const StripeTriggerNode = memo((props: NodeProps) => {
         onDoubleClick={handleOpenSettings}
       />
     </>
-  )
+  );
 });

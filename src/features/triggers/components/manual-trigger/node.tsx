@@ -21,10 +21,7 @@ export const ManualTriggerNode = memo((props: NodeProps) => {
 
   return (
     <>
-      <ManualTriggerDialog 
-        open={dialogOpen}
-        onOpenChange={setDialogOpen}
-      />
+      <ManualTriggerDialog open={dialogOpen} onOpenChange={setDialogOpen} />
       <BaseTriggerNode
         {...props}
         icon={MousePointerIcon}
@@ -34,5 +31,5 @@ export const ManualTriggerNode = memo((props: NodeProps) => {
         onDoubleClick={handleOpenSettings}
       />
     </>
-  )
+  );
 });

@@ -11,6 +11,9 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import { toast } from "sonner";
+import { useState } from "react";
+import { Loader2Icon } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -45,13 +48,29 @@ const menuItems = [
         url: "/executions",
       },
     ],
-  }
+  },
 ];
 
 export const AppSidebar = () => {
   const router = useRouter();
   const pathname = usePathname();
   const { hasActiveSubscription, isLoading } = useHasActiveSubscription();
+  const [isUpgrading, setIsUpgrading] = useState(false);
+
+  const onUpgrade = async () => {
+    try {
+      setIsUpgrading(true);
+      const res = await (authClient as any).polar.checkout({ slug: "pro" });
+      if (res?.url) {
+        window.location.href = res.url;
+      }
+    } catch (e) {
+      console.error(e);
+      toast.error("Failed to initiate upgrade. Please try again.");
+    } finally {
+      setIsUpgrading(false);
+    }
+  };
 
   return (
     <Sidebar collapsible="icon">
@@ -59,8 +78,13 @@ export const AppSidebar = () => {
         <SidebarMenuItem>
           <SidebarMenuButton asChild className="gap-x-4 h-10 px-4">
             <Link href="/" prefetch>
-              <Image src="/logos/logo.svg" alt="Nodebase" width={30} height={30} />
-              <span className="font-semibold text-sm">Nodebase</span>
+              <Image
+                src="/logos/logo.svg"
+                alt="otogent"
+                width={30}
+                height={30}
+              />
+              <span className="font-semibold text-sm">otogent</span>
             </Link>
           </SidebarMenuButton>
         </SidebarMenuItem>
@@ -99,7 +123,7 @@ export const AppSidebar = () => {
           {!hasActiveSubscription && !isLoading && (
             <SidebarMenuItem>
               <SidebarMenuButton
-                tooltip="Upgade to Pro"
+                tooltip="Upgrade to Pro"
                 className="gap-x-4 h-10 px-4"
                 onClick={() => authClient.checkout({ slug: "pro" })}
               >
@@ -122,13 +146,15 @@ export const AppSidebar = () => {
             <SidebarMenuButton
               tooltip="Sign out"
               className="gap-x-4 h-10 px-4"
-              onClick={() => authClient.signOut({
-                fetchOptions: {
-                  onSuccess: () => {
-                    router.push("/login");
+              onClick={() =>
+                authClient.signOut({
+                  fetchOptions: {
+                    onSuccess: () => {
+                      router.push("/login");
+                    },
                   },
-                },
-              })}
+                })
+              }
             >
               <LogOutIcon className="h-4 w-4" />
               <span>Sign out</span>

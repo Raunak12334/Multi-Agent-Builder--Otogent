@@ -11,16 +11,16 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { authClient } from "@/lib/auth-client";
+import { useRouter } from "next/navigation";
 
 interface UpgradeModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-};
+}
 
-export const UpgradeModal = ({ 
-  open, 
-  onOpenChange
-}: UpgradeModalProps) => {
+export const UpgradeModal = ({ open, onOpenChange }: UpgradeModalProps) => {
+  const router = useRouter();
+
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent>
@@ -33,9 +33,7 @@ export const UpgradeModal = ({
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction
-            onClick={() => authClient.checkout({ slug: "pro" })}
-          >
+          <AlertDialogAction onClick={() => router.push("/subscription")}>
             Upgrade Now
           </AlertDialogAction>
         </AlertDialogFooter>

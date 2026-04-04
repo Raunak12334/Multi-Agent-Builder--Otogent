@@ -14,7 +14,11 @@ export const ExecuteWorkflowButton = ({
   };
 
   return (
-    <Button size="lg" onClick={handleExecute} disabled={executeWorkflow.isPending}>
+    <Button
+      size="lg"
+      onClick={handleExecute}
+      disabled={executeWorkflow.isPending}
+    >
       <FlaskConicalIcon className="size-4" />
       Execute workflow
     </Button>

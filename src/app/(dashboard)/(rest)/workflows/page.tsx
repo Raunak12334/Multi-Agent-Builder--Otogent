@@ -1,6 +1,6 @@
-import { 
-  WorkflowsContainer, 
-  WorkflowsList, 
+import {
+  WorkflowsContainer,
+  WorkflowsList,
   WorkflowsLoading,
   WorkflowsError,
 } from "@/features/workflows/components/workflows";
@@ -14,7 +14,7 @@ import { ErrorBoundary } from "react-error-boundary";
 
 type Props = {
   searchParams: Promise<SearchParams>;
-}
+};
 
 const Page = async ({ searchParams }: Props) => {
   await requireAuth();
@@ -32,7 +32,7 @@ const Page = async ({ searchParams }: Props) => {
         </ErrorBoundary>
       </HydrateClient>
     </WorkflowsContainer>
-  )
+  );
 };
 
 export default Page;

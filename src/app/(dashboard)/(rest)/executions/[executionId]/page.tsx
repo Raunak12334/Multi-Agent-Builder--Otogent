@@ -1,5 +1,8 @@
 import { ExecutionView } from "@/features/executions/components/execution";
-import { ExecutionsError, ExecutionsLoading } from "@/features/executions/components/executions";
+import {
+  ExecutionsError,
+  ExecutionsLoading,
+} from "@/features/executions/components/executions";
 import { prefetchExecution } from "@/features/executions/server/prefetch";
 import { requireAuth } from "@/lib/auth-utils";
 import { HydrateClient } from "@/trpc/server";
@@ -9,12 +12,12 @@ import { ErrorBoundary } from "react-error-boundary";
 interface PageProps {
   params: Promise<{
     executionId: string;
-  }>
-};
+  }>;
+}
 
 const Page = async ({ params }: PageProps) => {
   await requireAuth();
-  
+
   const { executionId } = await params;
   prefetchExecution(executionId);
 
@@ -30,7 +33,7 @@ const Page = async ({ params }: PageProps) => {
         </HydrateClient>
       </div>
     </div>
-  )
+  );
 };
 
 export default Page;

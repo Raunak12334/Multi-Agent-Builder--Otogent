@@ -68,7 +68,7 @@ export const slackExecutor: NodeExecutor<SlackData> = async ({
           slackChannel().status({
             nodeId,
             status: "error",
-          })
+          }),
         );
         throw new NonRetriableError("Slack node: Variable name is missing");
       }
@@ -80,7 +80,7 @@ export const slackExecutor: NodeExecutor<SlackData> = async ({
         },
       };
     });
-    
+
     await publish(
       slackChannel().status({
         nodeId,
@@ -90,7 +90,7 @@ export const slackExecutor: NodeExecutor<SlackData> = async ({
 
     return result;
   } catch (error) {
-     await publish(
+    await publish(
       slackChannel().status({
         nodeId,
         status: "error",

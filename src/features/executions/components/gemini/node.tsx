@@ -31,18 +31,20 @@ export const GeminiNode = memo((props: NodeProps<GeminiNodeType>) => {
   const handleOpenSettings = () => setDialogOpen(true);
 
   const handleSubmit = (values: GeminiFormValues) => {
-    setNodes((nodes) => nodes.map((node) => {
-      if (node.id === props.id) {
-        return {
-          ...node,
-          data: {
-            ...node.data,
-            ...values,
-          }
+    setNodes((nodes) =>
+      nodes.map((node) => {
+        if (node.id === props.id) {
+          return {
+            ...node,
+            data: {
+              ...node.data,
+              ...values,
+            },
+          };
         }
-      }
-      return node;
-    }))
+        return node;
+      }),
+    );
   };
 
   const nodeData = props.data;
@@ -69,7 +71,7 @@ export const GeminiNode = memo((props: NodeProps<GeminiNodeType>) => {
         onDoubleClick={handleOpenSettings}
       />
     </>
-  )
+  );
 });
 
 GeminiNode.displayName = "GeminiNode";

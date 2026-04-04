@@ -30,15 +30,15 @@ export const auth = betterAuth({
         checkout({
           products: [
             {
-              productId: "f81be8a8-45e1-4e45-a1e9-b9d3fd79f814",
+              productId: "fa72e7fb-780c-47d5-9118-ac7ed8685d22",
               slug: "pro",
-            }
+            },
           ],
           successUrl: process.env.POLAR_SUCCESS_URL,
           authenticatedUsersOnly: true,
         }),
         portal(),
       ],
-    })
-  ]
+    }),
+  ],
 });

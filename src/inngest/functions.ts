@@ -15,7 +15,7 @@ import { discordChannel } from "./channels/discord";
 import { slackChannel } from "./channels/slack";
 
 export const executeWorkflow = inngest.createFunction(
-  { 
+  {
     id: "execute-workflow",
     retries: process.env.NODE_ENV === "production" ? 3 : 0,
     onFailure: async ({ event, step }) => {
@@ -29,7 +29,7 @@ export const executeWorkflow = inngest.createFunction(
       });
     },
   },
-  { 
+  {
     event: "workflows/execute.workflow",
     channels: [
       httpRequestChannel(),
@@ -107,7 +107,7 @@ export const executeWorkflow = inngest.createFunction(
           completedAt: new Date(),
           output: context,
         },
-      })
+      });
     });
 
     return {
