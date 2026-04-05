@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&display=swap');
 @import "tailwindcss";
 
 @custom-variant dark (&:is(.dark *));
@@ -158,6 +159,9 @@
   --font-mono: var(--font-mono);
   --font-serif: var(--font-serif);
 
+  --font-display: var(--font-display);
+  --font-body: var(--font-body);
+
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -202,6 +206,21 @@
   --input: hsl(220 15% 88%);
   --ring: hsl(175 80% 35%);
   --radius: 0.75rem;
+
+  --font-display: 'Instrument Serif', serif;
+  --font-body: 'Inter', sans-serif;
+}
+
+/* Hide scrollbar for the entire page when landing theme is active */
+html:has(.landing-theme),
+body:has(.landing-theme) {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+}
+
+html:has(.landing-theme)::-webkit-scrollbar,
+body:has(.landing-theme)::-webkit-scrollbar {
+  display: none; /* Chrome, Safari and Opera */
 }
 
 .landing-theme * {
@@ -235,7 +254,7 @@
 }
 
 .landing-theme .font-display {
-  font-family: var(--font-landing-sans), var(--font-sans), sans-serif;
+  font-family: var(--font-display), serif;
 }
 
 .landing-theme .text-gradient {

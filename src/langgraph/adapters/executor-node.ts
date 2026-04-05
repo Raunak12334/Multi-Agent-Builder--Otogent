@@ -1,7 +1,7 @@
 import type { Realtime } from "@inngest/realtime";
 import { getExecutor } from "@/features/executions/lib/executor-registry";
 import type { StepTools } from "@/features/executions/types";
-import type { NodeType } from "@/generated/prisma";
+import type { NodeType } from "@prisma/client";
 import { toLegacyWorkflowContext } from "../state";
 import type {
   GraphNodeExecutionParams,

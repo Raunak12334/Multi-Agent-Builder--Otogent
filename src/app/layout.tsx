@@ -37,7 +37,7 @@ export const metadata: Metadata = {
   title: "Otogent | Multi Agent System",
   description: "Infrastructure for Multi Agent System",
   icons: {
-    icon: "/otogent.svg",
+    icon: "/otogent-logo.png",
   },
 };
 

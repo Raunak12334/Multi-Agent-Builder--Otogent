@@ -28,7 +28,7 @@ import {
   useResumeExecution,
   useSuspenseExecution,
 } from "@/features/executions/hooks/use-executions";
-import { ExecutionStatus } from "@/generated/prisma";
+import { ExecutionStatus } from "@prisma/client";
 
 const getStatusIcon = (status: ExecutionStatus) => {
   switch (status) {

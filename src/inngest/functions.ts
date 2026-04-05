@@ -1,6 +1,6 @@
 import { NonRetriableError } from "inngest";
 import { getExecutor } from "@/features/executions/lib/executor-registry";
-import { ExecutionStatus, type NodeType } from "@/generated/prisma";
+import { ExecutionStatus, type NodeType } from "@prisma/client";
 import { isLangGraphEnabled } from "@/langgraph/config";
 import { runWorkflowGraph } from "@/langgraph/run-graph";
 import prisma from "@/lib/db";

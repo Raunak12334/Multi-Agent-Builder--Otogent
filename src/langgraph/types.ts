@@ -1,5 +1,5 @@
 import type { WorkflowContext } from "@/features/executions/types";
-import type { Connection, Node } from "@/generated/prisma";
+import type { Connection, Node } from "@prisma/client";
 
 export interface WorkflowGraphState {
   inputs: WorkflowContext;

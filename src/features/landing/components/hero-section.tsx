@@ -1,86 +1,73 @@
-import { ArrowRight, Zap } from "lucide-react";
-import Link from "next/link";
+"use client";
 
-import { buttonVariants } from "@/components/ui/button";
-import { Hero3DSceneClient } from "@/features/landing/components/hero-3d-scene-client";
-import { cn } from "@/lib/utils";
+import { motion } from "framer-motion";
+import { Play, Settings } from "lucide-react";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+
+const fadeUp = (delay: number, y: number = 16, duration: number = 0.6) => ({
+  initial: { opacity: 0, y },
+  animate: { opacity: 1, y: 0 },
+  transition: { duration, delay, ease: "easeOut" as const },
+});
 
 export function HeroSection() {
   return (
-    <section className="relative flex min-h-screen items-center justify-center overflow-hidden pt-16">
-      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-accent/5" />
+    <section className="relative flex flex-col items-center justify-start overflow-hidden h-screen pt-20 pb-10">
+      {/* Background Video */}
+      <video
+        autoPlay
+        muted
+        loop
+        playsInline
+        className="absolute inset-0 w-full h-full object-cover z-0"
+        src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260319_015952_e1deeb12-8fb7-4071-a42a-60779fc64ab6.mp4"
+      />
 
-      <div className="absolute inset-0 z-0">
-        <Hero3DSceneClient />
-      </div>
+      {/* Content */}
+      <div className="relative z-10 flex flex-col items-center w-full pt-10 md:pt-16 px-4">
+        {/* Badge */}
+        <motion.div 
+          {...fadeUp(0, 10, 0.5)} 
+          className="inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-white/10 backdrop-blur-md px-4 py-1.5 text-sm text-foreground font-body mb-8"
+        >
+          <div className="h-1.5 w-1.5 rounded-full bg-foreground/50" />
+          Infra. for Multi Agent System
+        </motion.div>
 
-      <div className="container relative z-10 py-20 text-center">
-        <div className="mb-8 inline-flex items-center gap-2 rounded-full border border-primary/30 bg-background/80 px-4 py-1.5 backdrop-blur-sm">
-          <Zap className="h-3.5 w-3.5 text-primary" />
-          <span className="text-xs font-medium text-primary">
-            Infrastructure for Multi Agent System
-          </span>
-        </div>
+        {/* Headline */}
+        <motion.h1
+          {...fadeUp(0.1, 16, 0.6)}
+          className="text-center font-display text-5xl md:text-7xl lg:text-[5.8rem] leading-[0.88] tracking-[-0.04em] text-foreground max-w-4xl"
+        >
+          The Future of <em className="not-italic font-display italic">Smarter</em> <br className="hidden md:block" /> Automation
+        </motion.h1>
 
-        <h1 className="mb-6 text-4xl leading-[1.1] font-bold tracking-tight sm:text-6xl lg:text-7xl">
-          Automate Your Work With
-          <br />
-          <span className="text-gradient">Multi-Agent System</span>
-        </h1>
+        {/* Subheadline */}
+        <motion.p
+          {...fadeUp(0.2, 16, 0.6)}
+          className="mt-8 text-center text-base md:text-lg text-foreground/80 max-w-[650px] leading-relaxed font-body"
+        >
+          Automate your busywork with intelligent agents that learn, adapt, and execute—so your team can focus on what matters most.
+        </motion.p>
 
-        <p className="mx-auto mb-10 max-w-2xl text-lg leading-relaxed text-muted-foreground">
-          Connect, coordinate, and scale AI agents like never before. Otogent
-          provides the integration layer for autonomous agent workflows, think
-          Zapier, but built for the agentic era.
-        </p>
-
-        <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
-          <Link
-            href="/signup"
-            className={cn(
-              buttonVariants({
-                variant: "hero",
-                size: "lg",
-              }),
-              "card-3d px-8 text-base",
-            )}
+        {/* CTA Buttons */}
+        <motion.div {...fadeUp(0.3, 16, 0.6)} className="mt-10 flex items-center gap-5">
+          <Button asChild className="rounded-full px-8 py-7 text-base font-bold bg-primary text-primary-foreground hover:opacity-90 transition-all shadow-lg">
+            <Link href="/signup">Start Building Now</Link>
+          </Button>
+          <Button
+            asChild
+            variant="ghost"
+            size="icon"
+            className="h-14 w-14 rounded-full border-0 bg-background/80 backdrop-blur-sm hover:bg-background/90 shadow-md"
           >
-            Start Building <ArrowRight className="ml-2 h-4 w-4" />
-          </Link>
-          <a
-            href="#how-it-works"
-            className={cn(
-              buttonVariants({
-                variant: "hero-outline",
-                size: "lg",
-              }),
-              "px-8 text-base",
-            )}
-          >
-            View Documentation
-          </a>
-        </div>
+            <a href="#how-it-works">
+              <Play className="h-5 w-5 fill-current" />
+            </a>
+          </Button>
+        </motion.div>
 
-        <div className="mt-16 flex flex-wrap items-center justify-center gap-8 text-sm text-muted-foreground">
-          <div className="flex items-center gap-2">
-            <div className="h-2 w-2 rounded-full bg-primary animate-pulse-glow" />
-            100+ Integrations
-          </div>
-          <div className="flex items-center gap-2">
-            <div
-              className="h-2 w-2 rounded-full bg-primary animate-pulse-glow"
-              style={{ animationDelay: "1s" }}
-            />
-            Sub-second Latency
-          </div>
-          <div className="flex items-center gap-2">
-            <div
-              className="h-2 w-2 rounded-full bg-primary animate-pulse-glow"
-              style={{ animationDelay: "2s" }}
-            />
-            Enterprise Ready
-          </div>
-        </div>
       </div>
     </section>
   );
