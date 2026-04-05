@@ -110,6 +110,8 @@
     "typescript": "^5"
   },
   "overrides": {
+    "react": "$react",
+    "react-dom": "$react-dom",
     "require-in-the-middle": "7.5.2",
     "import-in-the-middle": "1.14.4"
   }
