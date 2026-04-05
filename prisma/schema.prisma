@@ -94,6 +94,7 @@ enum CredentialType {
   OPENAI
   ANTHROPIC
   GEMINI
+  GEMMA
 }
 
 model Workflow {
@@ -114,6 +115,9 @@ enum NodeType {
   INITIAL
   MANUAL_TRIGGER
   HTTP_REQUEST
+  ROUTER
+  HUMAN_APPROVAL
+  GEMMA
   GOOGLE_FORM_TRIGGER
   STRIPE_TRIGGER
   ANTHROPIC
@@ -164,6 +168,7 @@ model Connection {
 
 enum ExecutionStatus {
   RUNNING
+  WAITING_APPROVAL
   SUCCESS
   FAILED
 }
@@ -184,4 +189,23 @@ model Execution {
   inngestEventId String @unique
 
   output Json?
+
+  checkpoints ExecutionCheckpoint[]
+}
+
+model ExecutionCheckpoint {
+  id String @id @default(cuid())
+
+  executionId String
+  execution Execution @relation(fields: [executionId], references: [id], onDelete: Cascade)
+
+  nodeId String?
+  sequence Int
+  state Json
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([executionId, sequence])
+  @@index([executionId, createdAt])
 }

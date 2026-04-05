@@ -2,7 +2,13 @@
 
 import { createId } from "@paralleldrive/cuid2";
 import { useReactFlow } from "@xyflow/react";
-import { GlobeIcon, MousePointerIcon } from "lucide-react";
+import {
+  GitBranchPlusIcon,
+  GlobeIcon,
+  MousePointerIcon,
+  ShieldCheckIcon,
+} from "lucide-react";
+import Image from "next/image";
 import { useCallback } from "react";
 import { toast } from "sonner";
 import {
@@ -53,10 +59,28 @@ const executionNodes: NodeTypeOption[] = [
     icon: GlobeIcon,
   },
   {
+    type: NodeType.ROUTER,
+    label: "Router",
+    description: "Routes execution to a named branch using workflow state",
+    icon: GitBranchPlusIcon,
+  },
+  {
+    type: NodeType.HUMAN_APPROVAL,
+    label: "Human Approval",
+    description: "Pauses the workflow until a human explicitly approves it",
+    icon: ShieldCheckIcon,
+  },
+  {
     type: NodeType.GEMINI,
     label: "Gemini",
     description: "Uses Google Gemini to generate text",
     icon: "/logos/gemini.svg",
+  },
+  {
+    type: NodeType.GEMMA,
+    label: "Gemma",
+    description: "Uses Gemma to generate text and reasoning outputs",
+    icon: "/logos/google.svg",
   },
   {
     type: NodeType.OPENAI,
@@ -159,16 +183,19 @@ export function NodeSelector({
             const Icon = nodeType.icon;
 
             return (
-              <div
+              <button
+                type="button"
                 key={nodeType.type}
                 className="w-full justify-start h-auto py-5 px-4 rounded-none cursor-pointer border-l-2 border-transparent hover:border-l-primary"
                 onClick={() => handleNodeSelect(nodeType)}
               >
                 <div className="flex items-center gap-6 w-full overflow-hidden">
                   {typeof Icon === "string" ? (
-                    <img
+                    <Image
                       src={Icon}
                       alt={nodeType.label}
+                      width={20}
+                      height={20}
                       className="size-5 object-contain rounded-sm"
                     />
                   ) : (
@@ -183,7 +210,7 @@ export function NodeSelector({
                     </span>
                   </div>
                 </div>
-              </div>
+              </button>
             );
           })}
         </div>
@@ -193,16 +220,19 @@ export function NodeSelector({
             const Icon = nodeType.icon;
 
             return (
-              <div
+              <button
+                type="button"
                 key={nodeType.type}
                 className="w-full justify-start h-auto py-5 px-4 rounded-none cursor-pointer border-l-2 border-transparent hover:border-l-primary"
                 onClick={() => handleNodeSelect(nodeType)}
               >
                 <div className="flex items-center gap-6 w-full overflow-hidden">
                   {typeof Icon === "string" ? (
-                    <img
+                    <Image
                       src={Icon}
                       alt={nodeType.label}
+                      width={20}
+                      height={20}
                       className="size-5 object-contain rounded-sm"
                     />
                   ) : (
@@ -217,7 +247,7 @@ export function NodeSelector({
                     </span>
                   </div>
                 </div>
-              </div>
+              </button>
             );
           })}
         </div>

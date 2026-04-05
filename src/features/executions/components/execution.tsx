@@ -1,13 +1,12 @@
 "use client";
 
-import { ExecutionStatus } from "@/generated/prisma";
+import { formatDistanceToNow } from "date-fns";
 import {
   CheckCircle2Icon,
   ClockIcon,
   Loader2Icon,
   XCircleIcon,
 } from "lucide-react";
-import { formatDistanceToNow } from "date-fns";
 import Link from "next/link";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -23,7 +22,13 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
-import { useSuspenseExecution } from "@/features/executions/hooks/use-executions";
+import {
+  useApproveExecution,
+  useReplayExecutionCheckpoint,
+  useResumeExecution,
+  useSuspenseExecution,
+} from "@/features/executions/hooks/use-executions";
+import { ExecutionStatus } from "@/generated/prisma";
 
 const getStatusIcon = (status: ExecutionStatus) => {
   switch (status) {
@@ -33,6 +38,8 @@ const getStatusIcon = (status: ExecutionStatus) => {
       return <XCircleIcon className="size-5 text-red-600" />;
     case ExecutionStatus.RUNNING:
       return <Loader2Icon className="size-5 text-blue-600 animate-spin" />;
+    case ExecutionStatus.WAITING_APPROVAL:
+      return <ClockIcon className="size-5 text-amber-600" />;
     default:
       return <ClockIcon className="size-5 text-muted-foreground" />;
   }
@@ -44,6 +51,9 @@ const formatStatus = (status: ExecutionStatus) => {
 
 export const ExecutionView = ({ executionId }: { executionId: string }) => {
   const { data: execution } = useSuspenseExecution(executionId);
+  const approveExecution = useApproveExecution();
+  const replayCheckpoint = useReplayExecutionCheckpoint();
+  const resumeExecution = useResumeExecution();
   const [showStackTrace, setShowStackTrace] = useState(false);
 
   const duration = execution.completedAt
@@ -123,6 +133,40 @@ export const ExecutionView = ({ executionId }: { executionId: string }) => {
             <p className="text-sm">{execution.inngestEventId}</p>
           </div>
         </div>
+
+        {execution.status === ExecutionStatus.FAILED &&
+        execution.checkpoints.length > 0 ? (
+          <div className="flex justify-end">
+            <Button
+              onClick={() => resumeExecution.mutate({ id: execution.id })}
+              disabled={resumeExecution.isPending}
+            >
+              Resume from checkpoint
+            </Button>
+          </div>
+        ) : null}
+
+        {execution.status === ExecutionStatus.WAITING_APPROVAL ? (
+          <div className="rounded-md border border-amber-200 bg-amber-50 p-4 space-y-3">
+            <div>
+              <p className="text-sm font-medium text-amber-900">
+                Waiting for approval
+              </p>
+              <p className="text-sm text-amber-800">
+                This execution paused at a human approval node and will continue
+                after approval.
+              </p>
+            </div>
+            <div className="flex justify-end">
+              <Button
+                onClick={() => approveExecution.mutate({ id: execution.id })}
+                disabled={approveExecution.isPending}
+              >
+                Approve and continue
+              </Button>
+            </div>
+          </div>
+        ) : null}
         {execution.error && (
           <div className="mt-6 p-4 bg-red-50 rounded-md space-y-3">
             <div>
@@ -162,6 +206,55 @@ export const ExecutionView = ({ executionId }: { executionId: string }) => {
             <pre className="text-xs font-mono overflow-auto">
               {JSON.stringify(execution.output, null, 2)}
             </pre>
+          </div>
+        )}
+
+        {execution.checkpoints.length > 0 && (
+          <div className="mt-6 p-4 bg-muted rounded-md space-y-3">
+            <div>
+              <p className="text-sm font-medium">LangGraph Checkpoints</p>
+              <p className="text-xs text-muted-foreground">
+                {execution.checkpoints.length} snapshot
+                {execution.checkpoints.length === 1 ? "" : "s"} captured during
+                execution
+              </p>
+            </div>
+
+            <div className="space-y-3">
+              {execution.checkpoints.map((checkpoint) => (
+                <div
+                  key={checkpoint.id}
+                  className="rounded-md border bg-background p-3"
+                >
+                  <div className="mb-2 flex items-center justify-between gap-3">
+                    <p className="text-xs font-medium">
+                      Step {checkpoint.sequence}
+                    </p>
+                    <div className="flex items-center gap-2">
+                      <p className="text-xs text-muted-foreground">
+                        {checkpoint.nodeId ?? "graph"}
+                      </p>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() =>
+                          replayCheckpoint.mutate({
+                            id: execution.id,
+                            checkpointId: checkpoint.id,
+                          })
+                        }
+                        disabled={replayCheckpoint.isPending}
+                      >
+                        Replay from here
+                      </Button>
+                    </div>
+                  </div>
+                  <pre className="text-xs font-mono overflow-auto">
+                    {JSON.stringify(checkpoint.state, null, 2)}
+                  </pre>
+                </div>
+              ))}
+            </div>
           </div>
         )}
       </CardContent>

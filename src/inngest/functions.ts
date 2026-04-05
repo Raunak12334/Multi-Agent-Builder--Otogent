@@ -1,24 +1,27 @@
 import { NonRetriableError } from "inngest";
-import { inngest } from "./client";
-import prisma from "@/lib/db";
-import { topologicalSort } from "./utils";
-import { ExecutionStatus, NodeType } from "@/generated/prisma";
 import { getExecutor } from "@/features/executions/lib/executor-registry";
-import { httpRequestChannel } from "./channels/http-request";
-import { manualTriggerChannel } from "./channels/manual-trigger";
-import { googleFormTriggerChannel } from "./channels/google-form-trigger";
-import { stripeTriggerChannel } from "./channels/stripe-trigger";
-import { geminiChannel } from "./channels/gemini";
-import { openAiChannel } from "./channels/openai";
+import { ExecutionStatus, type NodeType } from "@/generated/prisma";
+import { isLangGraphEnabled } from "@/langgraph/config";
+import { runWorkflowGraph } from "@/langgraph/run-graph";
+import prisma from "@/lib/db";
 import { anthropicChannel } from "./channels/anthropic";
 import { discordChannel } from "./channels/discord";
+import { geminiChannel } from "./channels/gemini";
+import { gemmaChannel } from "./channels/gemma";
+import { googleFormTriggerChannel } from "./channels/google-form-trigger";
+import { httpRequestChannel } from "./channels/http-request";
+import { manualTriggerChannel } from "./channels/manual-trigger";
+import { openAiChannel } from "./channels/openai";
 import { slackChannel } from "./channels/slack";
+import { stripeTriggerChannel } from "./channels/stripe-trigger";
+import { inngest } from "./client";
+import { topologicalSort } from "./utils";
 
 export const executeWorkflow = inngest.createFunction(
   {
     id: "execute-workflow",
     retries: process.env.NODE_ENV === "production" ? 3 : 0,
-    onFailure: async ({ event, step }) => {
+    onFailure: async ({ event }) => {
       return prisma.execution.update({
         where: { inngestEventId: event.data.event.id },
         data: {
@@ -36,6 +39,7 @@ export const executeWorkflow = inngest.createFunction(
       manualTriggerChannel(),
       googleFormTriggerChannel(),
       stripeTriggerChannel(),
+      gemmaChannel(),
       geminiChannel(),
       openAiChannel(),
       anthropicChannel(),
@@ -46,12 +50,31 @@ export const executeWorkflow = inngest.createFunction(
   async ({ event, step, publish }) => {
     const inngestEventId = event.id;
     const workflowId = event.data.workflowId;
+    const resumeExecutionId = event.data.executionId as string | undefined;
+    const checkpointId = event.data.checkpointId as string | undefined;
 
     if (!inngestEventId || !workflowId) {
       throw new NonRetriableError("Event ID or workflow ID is missing");
     }
 
-    await step.run("create-execution", async () => {
+    const execution = await step.run("create-execution", async () => {
+      if (resumeExecutionId) {
+        return prisma.execution.update({
+          where: {
+            id: resumeExecutionId,
+            workflowId,
+          },
+          data: {
+            status: ExecutionStatus.RUNNING,
+            error: null,
+            errorStack: null,
+            completedAt: null,
+            inngestEventId,
+            output: null,
+          },
+        });
+      }
+
       return prisma.execution.create({
         data: {
           workflowId,
@@ -83,20 +106,55 @@ export const executeWorkflow = inngest.createFunction(
       return workflow.userId;
     });
 
-    // Initialize context with any initial data from the trigger
-    let context = event.data.initialData || {};
+    const graphResult = isLangGraphEnabled()
+      ? await runWorkflowGraph({
+          executionId: execution.id,
+          workflowId,
+          userId,
+          inngestEventId,
+          checkpointId,
+          initialData: event.data.initialData || {},
+          step,
+          publish,
+        })
+      : null;
 
-    // Execute each node
-    for (const node of sortedNodes) {
-      const executor = getExecutor(node.type as NodeType);
-      context = await executor({
-        data: node.data as Record<string, unknown>,
-        nodeId: node.id,
-        userId,
-        context,
-        step,
-        publish,
+    const context = graphResult?.output
+      ? graphResult.output
+      : await step.run("execute-legacy-workflow", async () => {
+          let legacyContext = event.data.initialData || {};
+
+          for (const node of sortedNodes) {
+            const executor = getExecutor(node.type as NodeType);
+            legacyContext = await executor({
+              data: node.data as Record<string, unknown>,
+              nodeId: node.id,
+              userId,
+              context: legacyContext,
+              step,
+              publish,
+            });
+          }
+
+          return legacyContext;
+        });
+
+    if (graphResult?.awaitingApproval) {
+      await step.run("mark-waiting-approval", async () => {
+        return prisma.execution.update({
+          where: { id: execution.id },
+          data: {
+            status: ExecutionStatus.WAITING_APPROVAL,
+            output: context,
+          },
+        });
       });
+
+      return {
+        workflowId,
+        result: context,
+        waitingForApproval: true,
+      };
     }
 
     await step.run("update-execution", async () => {

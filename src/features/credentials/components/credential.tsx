@@ -1,17 +1,19 @@
 "use client";
 
-import { CredentialType } from "@/generated/prisma";
-import Image from "next/image";
-import { useRouter } from "next/navigation";
-import {
-  useCreateCredential,
-  useUpdateCredential,
-  useSuspenseCredential,
-} from "../hooks/use-credentials";
-import { useUpgradeModal } from "@/hooks/use-upgrade-modal";
-import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import Image from "next/image";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
 import z from "zod";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import {
   Form,
   FormControl,
@@ -28,15 +30,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { CredentialType } from "@/generated/prisma";
+import { useUpgradeModal } from "@/hooks/use-upgrade-modal";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import Link from "next/link";
+  useCreateCredential,
+  useSuspenseCredential,
+  useUpdateCredential,
+} from "../hooks/use-credentials";
 
 const formSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -61,6 +61,11 @@ const credentialTypeOptions = [
     value: CredentialType.GEMINI,
     label: "Gemini",
     logo: "/logos/gemini.svg",
+  },
+  {
+    value: CredentialType.GEMMA,
+    label: "Gemma",
+    logo: "/logos/google.svg",
   },
 ];
 

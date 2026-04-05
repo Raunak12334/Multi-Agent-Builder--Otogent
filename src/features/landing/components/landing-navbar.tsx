@@ -4,7 +4,8 @@ import { Menu, X } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 const links = [
   { href: "#features", label: "Features" },
@@ -39,17 +40,27 @@ export function LandingNavbar() {
         </div>
 
         <div className="hidden items-center gap-3 md:flex">
-          <Button
-            asChild
-            variant="ghost"
-            size="sm"
-            className="text-muted-foreground"
+          <Link
+            href="/login"
+            className={cn(
+              buttonVariants({
+                variant: "ghost",
+                size: "sm",
+              }),
+              "text-muted-foreground",
+            )}
           >
-            <Link href="/login">Log In</Link>
-          </Button>
-          <Button asChild variant="hero" size="sm">
-            <Link href="/signup">Get Started</Link>
-          </Button>
+            Log In
+          </Link>
+          <Link
+            href="/signup"
+            className={buttonVariants({
+              variant: "hero",
+              size: "sm",
+            })}
+          >
+            Get Started
+          </Link>
         </div>
 
         <button
@@ -74,9 +85,30 @@ export function LandingNavbar() {
               {link.label}
             </a>
           ))}
-          <Button asChild variant="hero" className="mt-2 w-full">
-            <Link href="/signup">Get Started</Link>
-          </Button>
+          <Link
+            href="/login"
+            className={cn(
+              buttonVariants({
+                variant: "ghost",
+              }),
+              "w-full justify-center text-muted-foreground",
+            )}
+            onClick={() => setOpen(false)}
+          >
+            Log In
+          </Link>
+          <Link
+            href="/signup"
+            className={cn(
+              buttonVariants({
+                variant: "hero",
+              }),
+              "mt-2 w-full justify-center",
+            )}
+            onClick={() => setOpen(false)}
+          >
+            Get Started
+          </Link>
         </div>
       ) : null}
     </nav>

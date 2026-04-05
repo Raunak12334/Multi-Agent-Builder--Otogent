@@ -1,7 +1,9 @@
 import { ArrowRight, Zap } from "lucide-react";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
+
+import { buttonVariants } from "@/components/ui/button";
 import { Hero3DSceneClient } from "@/features/landing/components/hero-3d-scene-client";
+import { cn } from "@/lib/utils";
 
 export function HeroSection() {
   return (
@@ -33,24 +35,30 @@ export function HeroSection() {
         </p>
 
         <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
-          <Button
-            asChild
-            variant="hero"
-            size="lg"
-            className="card-3d px-8 text-base"
+          <Link
+            href="/signup"
+            className={cn(
+              buttonVariants({
+                variant: "hero",
+                size: "lg",
+              }),
+              "card-3d px-8 text-base",
+            )}
           >
-            <Link href="/signup">
-              Start Building <ArrowRight className="ml-2 h-4 w-4" />
-            </Link>
-          </Button>
-          <Button
-            asChild
-            variant="hero-outline"
-            size="lg"
-            className="px-8 text-base"
+            Start Building <ArrowRight className="ml-2 h-4 w-4" />
+          </Link>
+          <a
+            href="#how-it-works"
+            className={cn(
+              buttonVariants({
+                variant: "hero-outline",
+                size: "lg",
+              }),
+              "px-8 text-base",
+            )}
           >
-            <a href="#how-it-works">View Documentation</a>
-          </Button>
+            View Documentation
+          </a>
         </div>
 
         <div className="mt-16 flex flex-wrap items-center justify-center gap-8 text-sm text-muted-foreground">

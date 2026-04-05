@@ -1,0 +1,5 @@
+-- AlterEnum
+ALTER TYPE "NodeType" ADD VALUE 'HUMAN_APPROVAL';
+
+-- AlterEnum
+ALTER TYPE "ExecutionStatus" ADD VALUE 'WAITING_APPROVAL';
