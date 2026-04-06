@@ -1,6 +1,6 @@
 import { NonRetriableError } from "inngest";
 import { getExecutor } from "@/features/executions/lib/executor-registry";
-import { ExecutionStatus, type NodeType } from "@prisma/client";
+import { ExecutionStatus, type NodeType, Prisma } from "@prisma/client";
 import { isLangGraphEnabled } from "@/langgraph/config";
 import { runWorkflowGraph } from "@/langgraph/run-graph";
 import prisma from "@/lib/db";
@@ -70,7 +70,7 @@ export const executeWorkflow = inngest.createFunction(
             errorStack: null,
             completedAt: null,
             inngestEventId,
-            output: null,
+            output: Prisma.JsonNull,
           },
         });
       }

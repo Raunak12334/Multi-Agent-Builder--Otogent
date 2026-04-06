@@ -31,7 +31,7 @@ export const createExecutionCheckpointStore = (
           executionId,
           nodeId: params.nodeId,
           sequence,
-          state: params.state,
+          state: params.state as any,
         },
       });
     },
@@ -47,7 +47,7 @@ export const updateExecutionCheckpointState = async (params: {
       id: params.checkpointId,
     },
     data: {
-      state: params.state,
+      state: params.state as any,
     },
   });
 };
