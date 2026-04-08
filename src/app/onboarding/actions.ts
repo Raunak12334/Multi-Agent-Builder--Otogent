@@ -81,6 +81,16 @@ export async function submitOnboardingForm(data: {
     throw new Error("Full Name and Company Name are required.");
   }
 
+  // Ensure user doesn't already have an organization (prevent double creation)
+  const currentUser = await prisma.user.findUnique({
+    where: { id: session.user.id },
+    select: { organizationId: true, onboardingCompleted: true }
+  });
+
+  if (currentUser?.organizationId && currentUser?.onboardingCompleted) {
+    redirect("/workflows");
+  }
+
   const org = await prisma.organization.create({
     data: {
       name: data.companyName,

@@ -16,6 +16,14 @@ export async function selectFreeTier() {
     throw new Error("User must complete onboarding first.");
   }
 
+  const existingSubscription = await prisma.subscription.findUnique({
+    where: { organizationId: user.organizationId }
+  });
+
+  if (existingSubscription) {
+    redirect("/workflows");
+  }
+
   // Calculate dates correctly
   const now = new Date();
   const expires = new Date();
