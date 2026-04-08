@@ -1,0 +1,336 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String  @id
+  name          String
+  email         String
+  emailVerified Boolean @default(false)
+  image         String?
+
+  role                Role          @default(USER)
+  onboardingCompleted Boolean       @default(false)
+  
+  // Multi-tenant isolation: Every user MUST belong to an organization
+  organizationId      String?
+  organization        Organization? @relation(fields: [organizationId], references: [id])
+
+  invitesSent   TeamInvite[] @relation("InvitedBy")
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @default(now()) @updatedAt
+  deletedAt     DateTime?
+  sessions      Session[]
+  accounts      Account[]
+
+  @@unique([email])
+  @@index([organizationId])
+  @@map("user")
+}
+
+model Organization {
+  id          String  @id @default(cuid())
+  name        String
+  companySize String?
+  useCase     String?
+
+  users        User[]
+  subscription Subscription?
+  workflows    Workflow[]
+  credentials  Credential[]
+  invites      TeamInvite[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+  deletedAt DateTime?
+
+  @@map("organization")
+}
+
+model Subscription {
+  id             String       @id @default(cuid())
+  organizationId String       @unique
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  plan              Plan      @default(FREE)
+  freeTierStartedAt DateTime?
+  expiresAt         DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+  deletedAt DateTime?
+
+  @@map("subscription")
+}
+
+enum Role {
+  ADMIN
+  USER
+}
+
+enum Plan {
+  FREE
+  PRO
+  ENTERPRISE
+}
+
+model TeamInvite {
+  id             String       @id @default(cuid())
+  email          String
+  
+  // Secure unique token for invite-only onboarding
+  tokenHash      String       @unique // Hashed token, not plaintext
+  
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  
+  invitedById    String
+  invitedBy      User         @relation("InvitedBy", fields: [invitedById], references: [id], onDelete: Cascade)
+  
+  role           Role         @default(USER)
+  status         InviteStatus @default(PENDING)
+  expiresAt      DateTime
+  used           Boolean      @default(false) // For one-time use
+  
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  deletedAt      DateTime?    // For soft deletes
+
+  @@unique([email, organizationId])
+  @@map("team_invite")
+}
+
+enum InviteStatus {
+  PENDING
+  ACCEPTED
+  REVOKED
+  EXPIRED
+}
+
+model AuditLog {
+  id             String   @id @default(cuid())
+  userId         String?
+  organizationId String
+  action         String
+  metadata       Json?
+  createdAt      DateTime @default(now())
+  deletedAt      DateTime?
+
+  @@index([organizationId, createdAt])
+}
+
+model Session {
+  id        String   @id
+  expiresAt DateTime
+  token     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime?
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([token])
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+  deletedAt             DateTime?
+
+  @@map("account")
+}
+
+model Verification {
+  id         String   @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+  deletedAt DateTime?
+
+  @@map("verification")
+}
+
+model Credential {
+  id        String         @id @default(cuid())
+  name      String
+  value     String
+  type      CredentialType
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+  deletedAt DateTime?
+
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  Node Node[]
+
+  @@map("credential")
+}
+
+enum CredentialType {
+  OPENAI
+  ANTHROPIC
+  GEMINI
+  GEMMA
+  HUGGINGFACE
+}
+
+model Workflow {
+  id        String   @id @default(cuid())
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime?
+
+  nodes       Node[]
+  connections Connection[]
+  executions  Execution[]
+
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@map("workflow")
+}
+
+enum NodeType {
+  INITIAL
+  MANUAL_TRIGGER
+  WEBHOOK_TRIGGER
+  HTTP_REQUEST
+  ROUTER
+  CONDITION
+  HUMAN_APPROVAL
+  SET_VARIABLE
+  TEXT_TEMPLATE
+  JSON_TRANSFORM
+  DELAY
+  MERGE
+  LOGGER
+  GEMMA
+  GOOGLE_FORM_TRIGGER
+  STRIPE_TRIGGER
+  ANTHROPIC
+  GEMINI
+  OPENAI
+  HUGGINGFACE
+  DISCORD
+  SLACK
+}
+
+model Node {
+  id         String   @id @default(cuid())
+  workflowId String
+  workflow   Workflow @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+
+  name     String
+  type     NodeType
+  position Json
+  data     Json     @default("{}")
+
+  credentialId String?
+  credential   Credential? @relation(fields: [credentialId], references: [id])
+
+  outputConnections Connection[] @relation("FromNode")
+  inputConnections  Connection[] @relation("ToNode")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime?
+
+  @@map("node")
+}
+
+model Connection {
+  id         String   @id @default(cuid())
+  workflowId String
+  workflow   Workflow @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+
+  fromNodeId String
+  fromNode   Node   @relation("FromNode", fields: [fromNodeId], references: [id], onDelete: Cascade)
+  toNodeId   String
+  toNode     Node   @relation("ToNode", fields: [toNodeId], references: [id], onDelete: Cascade)
+
+  fromOutput String @default("main")
+  toInput    String @default("main")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime?
+
+  @@unique([fromNodeId, toNodeId, fromOutput, toInput])
+  @@map("connection")
+}
+
+enum ExecutionStatus {
+  RUNNING
+  WAITING_APPROVAL
+  SUCCESS
+  FAILED
+}
+
+model Execution {
+  id String @id @default(cuid())
+
+  workflowId String
+  workflow   Workflow @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+
+  status     ExecutionStatus @default(RUNNING)
+  error      String?         @db.Text
+  errorStack String?         @db.Text
+
+  startedAt   DateTime  @default(now())
+  completedAt DateTime?
+
+  inngestEventId String @unique
+  deletedAt      DateTime?
+
+  output Json?
+
+  checkpoints ExecutionCheckpoint[]
+
+  @@map("execution")
+}
+
+model ExecutionCheckpoint {
+  id String @id @default(cuid())
+
+  executionId String
+  execution   Execution @relation(fields: [executionId], references: [id], onDelete: Cascade)
+
+  nodeId   String?
+  sequence Int
+  state    Json
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime?
+
+  @@unique([executionId, sequence])
+  @@index([executionId, createdAt])
+  @@map("execution_checkpoint")
+}

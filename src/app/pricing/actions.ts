@@ -1,0 +1,34 @@
+"use server";
+
+import prisma from "@/lib/db";
+import { requireAuth } from "@/lib/auth-utils";
+import { redirect } from "next/navigation";
+
+export async function selectFreeTier() {
+  const session = await requireAuth();
+
+  const user = await prisma.user.findUnique({
+    where: { id: session.user.id },
+    include: { organization: true },
+  });
+
+  if (!user || !user.organizationId) {
+    throw new Error("User must complete onboarding first.");
+  }
+
+  // Calculate dates correctly
+  const now = new Date();
+  const expires = new Date();
+  expires.setDate(expires.getDate() + 7);
+
+  await prisma.subscription.create({
+    data: {
+      organizationId: user.organizationId,
+      plan: "FREE",
+      freeTierStartedAt: now,
+      expiresAt: expires,
+    },
+  });
+
+  redirect("/workflows");
+}

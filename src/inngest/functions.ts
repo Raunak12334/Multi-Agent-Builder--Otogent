@@ -1,0 +1,329 @@
+import type { Realtime } from "@inngest/realtime";
+import { ExecutionStatus, type NodeType, Prisma } from "@prisma/client";
+import { NonRetriableError } from "inngest";
+import { getExecutor } from "@/features/executions/lib/executor-registry";
+import type { StepTools } from "@/features/executions/types";
+import { resolveWorkflowStartNodeIds } from "@/features/workflows/lib/start-nodes";
+import { isLangGraphEnabled } from "@/langgraph/config";
+import { runWorkflowGraph } from "@/langgraph/run-graph";
+import prisma from "@/lib/db";
+import { anthropicChannel } from "./channels/anthropic";
+import { discordChannel } from "./channels/discord";
+import { geminiChannel } from "./channels/gemini";
+import { gemmaChannel } from "./channels/gemma";
+import { googleFormTriggerChannel } from "./channels/google-form-trigger";
+import { httpRequestChannel } from "./channels/http-request";
+import { huggingFaceChannel } from "./channels/huggingface";
+import { manualTriggerChannel } from "./channels/manual-trigger";
+import { openAiChannel } from "./channels/openai";
+import { slackChannel } from "./channels/slack";
+import { stripeTriggerChannel } from "./channels/stripe-trigger";
+import { webhookTriggerChannel } from "./channels/webhook-trigger";
+import { inngest } from "./client";
+import { topologicalSort } from "./utils";
+
+type RuntimeNode = {
+  id: string;
+  type: NodeType;
+  data: unknown;
+};
+
+type RuntimeConnection = {
+  fromNodeId: string;
+  toNodeId: string;
+  fromOutput: string;
+};
+
+const getSelectedRouteForNode = (
+  variables: Record<string, unknown>,
+  nodeId: string,
+): string => {
+  const routes = variables.__routes;
+
+  if (!routes || typeof routes !== "object" || Array.isArray(routes)) {
+    return "main";
+  }
+
+  const selectedRoute = (routes as Record<string, unknown>)[nodeId];
+
+  return typeof selectedRoute === "string" ? selectedRoute : "main";
+};
+
+const selectNextConnections = (
+  connections: RuntimeConnection[],
+  context: Record<string, unknown>,
+  nodeId: string,
+) => {
+  const usesConditionalRouting =
+    connections.some((connection) => connection.fromOutput !== "main") ||
+    new Set(connections.map((connection) => connection.fromOutput)).size > 1;
+
+  if (!usesConditionalRouting) {
+    return connections;
+  }
+
+  const selectedRoute = getSelectedRouteForNode(context, nodeId);
+  const matchingConnections = connections.filter(
+    (connection) => connection.fromOutput === selectedRoute,
+  );
+
+  if (matchingConnections.length > 0) {
+    return matchingConnections;
+  }
+
+  return connections.filter(
+    (connection) =>
+      connection.fromOutput === "default" || connection.fromOutput === "main",
+  );
+};
+
+const runLegacyWorkflow = async (params: {
+  orderedNodes: RuntimeNode[];
+  connections: RuntimeConnection[];
+  organizationId: string;
+  initialData: Record<string, unknown>;
+  triggerNodeId?: string;
+  step: StepTools;
+  publish: Realtime.PublishFn;
+}) => {
+  const outgoingConnections = new Map<string, RuntimeConnection[]>();
+  const incomingCount = new Map<string, number>();
+  const activeNodes = new Set<string>();
+
+  for (const node of params.orderedNodes) {
+    incomingCount.set(node.id, 0);
+  }
+
+  for (const connection of params.connections) {
+    const list = outgoingConnections.get(connection.fromNodeId) ?? [];
+    list.push(connection);
+    outgoingConnections.set(connection.fromNodeId, list);
+
+    incomingCount.set(
+      connection.toNodeId,
+      (incomingCount.get(connection.toNodeId) ?? 0) + 1,
+    );
+  }
+
+  const startNodeIds = resolveWorkflowStartNodeIds({
+    nodes: params.orderedNodes,
+    triggerNodeId: params.triggerNodeId,
+  });
+
+  if (startNodeIds?.length) {
+    for (const nodeId of startNodeIds) {
+      activeNodes.add(nodeId);
+    }
+  } else {
+    for (const node of params.orderedNodes) {
+      if ((incomingCount.get(node.id) ?? 0) === 0) {
+        activeNodes.add(node.id);
+      }
+    }
+  }
+
+  let context = params.initialData;
+
+  for (const node of params.orderedNodes) {
+    if (!activeNodes.has(node.id)) {
+      continue;
+    }
+
+    const executor = getExecutor(node.type as NodeType);
+    context = await executor({
+      data: (node.data as Record<string, unknown>) ?? {},
+      nodeId: node.id,
+      organizationId: params.organizationId,
+      context,
+      step: params.step,
+      publish: params.publish,
+    });
+
+    const candidateConnections = outgoingConnections.get(node.id) ?? [];
+    const nextConnections = selectNextConnections(
+      candidateConnections,
+      context,
+      node.id,
+    );
+
+    for (const connection of nextConnections) {
+      activeNodes.add(connection.toNodeId);
+    }
+  }
+
+  return context;
+};
+
+export const executeWorkflow = inngest.createFunction(
+  {
+    id: "execute-workflow",
+    retries: process.env.NODE_ENV === "production" ? 3 : 0,
+    onFailure: async ({ event }) => {
+      return prisma.execution.update({
+        where: { inngestEventId: event.data.event.id },
+        data: {
+          status: ExecutionStatus.FAILED,
+          error: event.data.error.message,
+          errorStack: event.data.error.stack,
+        },
+      });
+    },
+  },
+  {
+    event: "workflows/execute.workflow",
+    channels: [
+      httpRequestChannel(),
+      manualTriggerChannel(),
+      googleFormTriggerChannel(),
+      stripeTriggerChannel(),
+      webhookTriggerChannel(),
+      gemmaChannel(),
+      geminiChannel(),
+      huggingFaceChannel(),
+      openAiChannel(),
+      anthropicChannel(),
+      discordChannel(),
+      slackChannel(),
+    ],
+  },
+  async ({ event, step, publish }) => {
+    const inngestEventId = event.id;
+    const workflowId = event.data.workflowId;
+    const resumeExecutionId = event.data.executionId as string | undefined;
+    const checkpointId = event.data.checkpointId as string | undefined;
+    const triggerNodeId = event.data.triggerNodeId as string | undefined;
+
+    if (!inngestEventId || !workflowId) {
+      throw new NonRetriableError("Event ID or workflow ID is missing");
+    }
+
+    const execution = await step.run("create-execution", async () => {
+      if (resumeExecutionId) {
+        return prisma.execution.update({
+          where: {
+            id: resumeExecutionId,
+            workflowId,
+          },
+          data: {
+            status: ExecutionStatus.RUNNING,
+            error: null,
+            errorStack: null,
+            completedAt: null,
+            inngestEventId,
+            output: Prisma.JsonNull,
+          },
+        });
+      }
+
+      return prisma.execution.create({
+        data: {
+          workflowId,
+          inngestEventId,
+        },
+      });
+    });
+
+    const workflowDefinition = await step.run("prepare-workflow", async () => {
+      const workflow = await prisma.workflow.findUniqueOrThrow({
+        where: { id: workflowId },
+        include: {
+          nodes: true,
+          connections: true,
+        },
+      });
+
+      const orderedNodes = topologicalSort(
+        workflow.nodes,
+        workflow.connections,
+      );
+
+      return {
+        nodes: orderedNodes.map((node) => ({
+          id: node.id,
+          type: node.type,
+          data: node.data,
+        })),
+        connections: workflow.connections.map((connection) => ({
+          fromNodeId: connection.fromNodeId,
+          toNodeId: connection.toNodeId,
+          fromOutput: connection.fromOutput,
+        })),
+      };
+    });
+
+    const organizationId = await step.run("find-organization-id", async () => {
+      const workflow = await prisma.workflow.findUniqueOrThrow({
+        where: { id: workflowId },
+        select: {
+          organizationId: true,
+        },
+      });
+
+      return workflow.organizationId;
+    });
+
+    const graphResult = isLangGraphEnabled()
+      ? await runWorkflowGraph({
+          executionId: execution.id,
+          workflowId,
+          organizationId,
+          inngestEventId,
+          checkpointId,
+          triggerNodeId,
+          initialData: event.data.initialData || {},
+          step,
+          publish,
+        })
+      : null;
+
+    let context: Record<string, unknown>;
+
+    if (graphResult?.output) {
+      context = graphResult.output;
+    } else {
+      context = await runLegacyWorkflow({
+        orderedNodes: workflowDefinition.nodes,
+        connections: workflowDefinition.connections,
+        organizationId,
+        initialData: (event.data.initialData || {}) as Record<string, unknown>,
+        triggerNodeId,
+        step,
+        publish,
+      });
+    }
+
+    if (graphResult?.awaitingApproval) {
+      await step.run("mark-waiting-approval", async () => {
+        return prisma.execution.update({
+          where: { id: execution.id },
+          data: {
+            status: ExecutionStatus.WAITING_APPROVAL,
+            output: context as Prisma.InputJsonValue,
+          },
+        });
+      });
+
+      return {
+        workflowId,
+        result: context,
+        waitingForApproval: true,
+      };
+    }
+
+    await step.run("update-execution", async () => {
+      return prisma.execution.update({
+        where: { inngestEventId, workflowId },
+        data: {
+          status: ExecutionStatus.SUCCESS,
+          completedAt: new Date(),
+          output: context as Prisma.InputJsonValue,
+        },
+      });
+    });
+
+    return {
+      workflowId,
+      result: context,
+    };
+  },
+);
