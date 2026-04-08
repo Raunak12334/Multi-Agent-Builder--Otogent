@@ -11,7 +11,7 @@ export default async function TeamPage() {
       organization: {
         include: {
           users: true,
-          invites: {
+          teamInvites: {
             orderBy: {
               createdAt: "desc"
             }
@@ -34,7 +34,7 @@ export default async function TeamPage() {
       
       <TeamManagementClient 
         users={currentUser.organization.users} 
-        invites={currentUser.organization.invites}
+        invites={currentUser.organization.teamInvites}
         currentUserId={currentUser.id}
         currentUserRole={currentUser.role}
         organizationId={currentUser.organization.id}
