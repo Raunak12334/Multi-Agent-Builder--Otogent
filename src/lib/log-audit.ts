@@ -1,4 +1,5 @@
 import prisma from "@/lib/db";
+import { InputJsonValue } from "@prisma/client/runtime/library";
 
 export async function logAudit(params: {
   userId?: string;
@@ -13,7 +14,7 @@ export async function logAudit(params: {
       userId: userId ?? null,
       organizationId: organizationId ?? "",
       action,
-      metadata: metadata ?? undefined,
+      metadata: (metadata as InputJsonValue) ?? undefined,
     },
   });
 }
