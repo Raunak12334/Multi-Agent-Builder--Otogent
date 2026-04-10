@@ -72,7 +72,7 @@ export const GemmaDialog = ({
     defaultValues: {
       variableName: defaultValues.variableName || "",
       credentialId: defaultValues.credentialId || "",
-      model: defaultValues.model || "gemma-4",
+      model: defaultValues.model || "gemma-3-12b-it",
       systemPrompt: defaultValues.systemPrompt || "",
       userPrompt: defaultValues.userPrompt || "",
     },
@@ -83,7 +83,7 @@ export const GemmaDialog = ({
       form.reset({
         variableName: defaultValues.variableName || "",
         credentialId: defaultValues.credentialId || "",
-        model: defaultValues.model || "gemma-4",
+        model: defaultValues.model || "gemma-3-12b-it",
         systemPrompt: defaultValues.systemPrompt || "",
         userPrompt: defaultValues.userPrompt || "",
       });
@@ -172,14 +172,31 @@ export const GemmaDialog = ({
               name="model"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Model ID</FormLabel>
-                  <FormControl>
-                    <Input placeholder="gemma-4" {...field} />
-                  </FormControl>
+                  <FormLabel>Gemma Model</FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    value={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select a model" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="gemma-3-4b-it">
+                        Gemma 3 (4B) — Fastest
+                      </SelectItem>
+                      <SelectItem value="gemma-3-12b-it">
+                        Gemma 3 (12B) — Balanced
+                      </SelectItem>
+                      <SelectItem value="gemma-3-27b-it">
+                        Gemma 3 (27B) — Best Quality
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
                   <FormDescription>
-                    Enter the exact Gemma 4 model ID exposed by your hosted
-                    provider, such as the one available through the Gemini API
-                    or Vertex AI.
+                    Select a Gemma 3 model available via the Gemini API. Larger
+                    models are more capable but slower.
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
