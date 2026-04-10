@@ -1,9 +1,9 @@
 "use server";
 
-import prisma from "@/lib/db";
-import { requireAuth } from "@/lib/auth-utils";
+import crypto from "node:crypto";
 import { redirect } from "next/navigation";
-import crypto from "crypto";
+import { requireAuth } from "@/lib/auth-utils";
+import prisma from "@/lib/db";
 
 export async function submitOnboardingForm(data: {
   fullName: string;
@@ -18,13 +18,20 @@ export async function submitOnboardingForm(data: {
 
   // 1. If a token is provided, validate it strictly
   if (data.token) {
-    const tokenHash = crypto.createHash("sha256").update(data.token).digest("hex");
+    const tokenHash = crypto
+      .createHash("sha256")
+      .update(data.token)
+      .digest("hex");
     const pendingInvite = await prisma.teamInvite.findUnique({
       where: { tokenHash },
-      include: { organization: true }
+      include: { organization: true },
     });
 
-    if (!pendingInvite || pendingInvite.status !== "PENDING" || pendingInvite.expiresAt < new Date()) {
+    if (
+      !pendingInvite ||
+      pendingInvite.status !== "PENDING" ||
+      pendingInvite.expiresAt < new Date()
+    ) {
       throw new Error("Invalid or expired invitation token.");
     }
 
@@ -42,7 +49,7 @@ export async function submitOnboardingForm(data: {
     // Mark invite as accepted
     await prisma.teamInvite.update({
       where: { id: pendingInvite.id },
-      data: { status: "ACCEPTED" }
+      data: { status: "ACCEPTED" },
     });
 
     redirect("/workflows");
@@ -53,8 +60,8 @@ export async function submitOnboardingForm(data: {
     where: {
       email: userEmail,
       status: "PENDING",
-      expiresAt: { gt: new Date() }
-    }
+      expiresAt: { gt: new Date() },
+    },
   });
 
   if (inviteByEmail) {
@@ -70,7 +77,7 @@ export async function submitOnboardingForm(data: {
 
     await prisma.teamInvite.update({
       where: { id: inviteByEmail.id },
-      data: { status: "ACCEPTED" }
+      data: { status: "ACCEPTED" },
     });
 
     redirect("/workflows");
@@ -84,7 +91,7 @@ export async function submitOnboardingForm(data: {
   // Ensure user doesn't already have an organization (prevent double creation)
   const currentUser = await prisma.user.findUnique({
     where: { id: session.user.id },
-    select: { organizationId: true, onboardingCompleted: true }
+    select: { organizationId: true, onboardingCompleted: true },
   });
 
   if (currentUser?.organizationId && currentUser?.onboardingCompleted) {

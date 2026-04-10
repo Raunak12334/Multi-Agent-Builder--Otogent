@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&display=swap");
 @import "tailwindcss";
 
 @custom-variant dark (&:is(.dark *));
@@ -207,8 +207,8 @@
   --ring: hsl(175 80% 35%);
   --radius: 0.75rem;
 
-  --font-display: 'Instrument Serif', serif;
-  --font-body: 'Inter', sans-serif;
+  --font-display: "Instrument Serif", serif;
+  --font-body: "Inter", sans-serif;
 }
 
 /* Hide scrollbar for the entire page when landing theme is active */

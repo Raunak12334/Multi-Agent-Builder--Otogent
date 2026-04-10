@@ -36,7 +36,9 @@ export const linkedinExecutor: NodeExecutor<LinkedinData> = async ({
   }
 
   const content = decode(Handlebars.compile(data.content)(context));
-  const title = data.title ? decode(Handlebars.compile(data.title)(context)) : "New Post";
+  const title = data.title
+    ? decode(Handlebars.compile(data.title)(context))
+    : "New Post";
 
   try {
     const result = await step.run("linkedin-post", async () => {

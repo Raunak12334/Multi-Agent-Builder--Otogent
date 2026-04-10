@@ -1,12 +1,12 @@
 import { Provider } from "jotai";
 import type { Metadata } from "next";
-import Script from "next/script";
 import {
   Geist,
   Geist_Mono,
   Quattrocento,
   Space_Grotesk,
 } from "next/font/google";
+import Script from "next/script";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
 import { Toaster } from "@/components/ui/sonner";
 import { TRPCReactProvider } from "@/trpc/client";
@@ -43,7 +43,8 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://otogent.com"),
 
   title: {
-    default: "Otogent – AI Agent Platform & Workflow Builder (All-in-One AI Tools)",
+    default:
+      "Otogent – AI Agent Platform & Workflow Builder (All-in-One AI Tools)",
     template: "%s | Otogent AI Platform",
   },
 
@@ -72,7 +73,7 @@ export const metadata: Metadata = {
   alternates: {
     canonical: "/",
     languages: {
-      "en": "https://otogent.com",
+      en: "https://otogent.com",
       "x-default": "https://otogent.com",
     },
   },
@@ -96,8 +97,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "Otogent AI Platform",
-    description:
-      "Create and scale AI agent workflows with ease using Otogent.",
+    description: "Create and scale AI agent workflows with ease using Otogent.",
     images: ["/og-image.png"],
   },
 
@@ -107,9 +107,9 @@ export const metadata: Metadata = {
   },
 
   icons: {
-    icon: "/otogent-logo.png",
-    shortcut: "/otogent-logo.png",
-    apple: "/otogent-logo.png",
+    icon: "/logo.svg",
+    shortcut: "/logo.svg",
+    apple: "/logo.svg",
   },
 
   verification: {
@@ -132,28 +132,28 @@ export default function RootLayout({
           type="application/ld+json"
           strategy="beforeInteractive"
           dangerouslySetInnerHTML={{
-                __html: JSON.stringify({
-                  "@context": "https://schema.org",
-                  "@type": "SoftwareApplication",
-                  name: "Otogent",
-                  url: "https://otogent.com",
-                  applicationCategory: "AI Platform",
-                  operatingSystem: "Web",
-                  description:
-                    "All-in-one AI agent platform for building and managing multi-agent workflows to automate repetitive tasks.",
-                  offers: {
-                    "@type": "Offer",
-                    "price": "0",
-                    "priceCurrency": "USD"
-                  },
-                  featureList: [
-                    "Multi-agent workflow builder",
-                    "OpenAI integration",
-                    "Anthropic integration",
-                    "Gemini integration",
-                    "No-code AI automation"
-                  ]
-                }),
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "SoftwareApplication",
+              name: "Otogent",
+              url: "https://otogent.com",
+              applicationCategory: "AI Platform",
+              operatingSystem: "Web",
+              description:
+                "All-in-one AI agent platform for building and managing multi-agent workflows to automate repetitive tasks.",
+              offers: {
+                "@type": "Offer",
+                price: "0",
+                priceCurrency: "USD",
+              },
+              featureList: [
+                "Multi-agent workflow builder",
+                "OpenAI integration",
+                "Anthropic integration",
+                "Gemini integration",
+                "No-code AI automation",
+              ],
+            }),
           }}
         />
       </head>

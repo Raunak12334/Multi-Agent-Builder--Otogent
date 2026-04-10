@@ -30,7 +30,7 @@ export const scheduleExecutor: NodeExecutor<ScheduleData> = async ({
       return {
         success: true,
         cron: validated.cron,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       };
     });
 

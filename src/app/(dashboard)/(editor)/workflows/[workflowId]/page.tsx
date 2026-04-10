@@ -1,14 +1,14 @@
+import { Suspense } from "react";
+import { ErrorBoundary } from "react-error-boundary";
+import { EditorLoading } from "@/features/editor/components/editor";
 import {
   EditorDynamic as Editor,
   EditorErrorDynamic as EditorError,
 } from "@/features/editor/components/editor-client-wrapper";
-import { EditorLoading } from "@/features/editor/components/editor";
 import { EditorHeader } from "@/features/editor/components/editor-header";
 import { prefetchWorkflow } from "@/features/workflows/server/prefetch";
 import { requireAuth } from "@/lib/auth-utils";
 import { HydrateClient } from "@/trpc/server";
-import { Suspense } from "react";
-import { ErrorBoundary } from "react-error-boundary";
 
 interface PageProps {
   params: Promise<{

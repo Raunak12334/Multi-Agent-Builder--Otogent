@@ -93,14 +93,16 @@ export const CredentialForm = ({ initialData }: CredentialFormProps) => {
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
-    defaultValues: initialData ? {
-      ...initialData,
-      value: initialData.value || "",
-    } : {
-      name: "",
-      type: CredentialType.OPENAI,
-      value: "",
-    },
+    defaultValues: initialData
+      ? {
+          ...initialData,
+          value: initialData.value || "",
+        }
+      : {
+          name: "",
+          type: CredentialType.OPENAI,
+          value: "",
+        },
   });
   const selectedType = form.watch("type");
   const valueLabel =

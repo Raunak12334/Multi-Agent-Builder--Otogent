@@ -1,12 +1,12 @@
 "use client";
 
-import { useReactFlow, type Node, type NodeProps } from "@xyflow/react";
-import { memo, useState } from "react";
-import { BaseExecutionNode } from "../base-execution-node";
-import { LinkedinDialog, LinkedinFormValues } from "./dialog";
-import { useNodeStatus } from "../../hooks/use-node-status";
-import { LINKEDIN_CHANNEL_NAME } from "@/inngest/channels/linkedin";
+import { type Node, type NodeProps, useReactFlow } from "@xyflow/react";
 import { LinkedinIcon } from "lucide-react";
+import { memo, useState } from "react";
+import { LINKEDIN_CHANNEL_NAME } from "@/inngest/channels/linkedin";
+import { useNodeStatus } from "../../hooks/use-node-status";
+import { BaseExecutionNode } from "../base-execution-node";
+import { LinkedinDialog, type LinkedinFormValues } from "./dialog";
 
 type LinkedinNodeData = {
   content?: string;
@@ -60,7 +60,11 @@ export const LinkedinNode = memo((props: NodeProps<LinkedinNodeType>) => {
         icon={LinkedinIcon}
         name="LinkedIn"
         status={nodeStatus}
-        description={props.data?.content ? `Post: ${props.data.content.slice(0, 30)}...` : "Not configured"}
+        description={
+          props.data?.content
+            ? `Post: ${props.data.content.slice(0, 30)}...`
+            : "Not configured"
+        }
         onSettings={handleOpenSettings}
         onDoubleClick={handleOpenSettings}
       />

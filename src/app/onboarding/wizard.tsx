@@ -1,16 +1,28 @@
 "use client";
 
+import { AnimatePresence, motion } from "framer-motion";
+import { Loader2 } from "lucide-react";
 import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { submitOnboardingForm } from "./actions";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2 } from "lucide-react";
-import { toast } from "sonner";
 
-export function OnboardingWizard({ hasInvite = false, token }: { hasInvite?: boolean; token?: string }) {
+export function OnboardingWizard({
+  hasInvite = false,
+  token,
+}: {
+  hasInvite?: boolean;
+  token?: string;
+}) {
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -34,9 +46,11 @@ export function OnboardingWizard({ hasInvite = false, token }: { hasInvite?: boo
       if (error.digest?.includes("NEXT_REDIRECT")) {
         return;
       }
-      
+
       console.error("Onboarding error:", error);
-      toast.error(error.message || "Failed to submit onboarding form. Please try again.");
+      toast.error(
+        error.message || "Failed to submit onboarding form. Please try again.",
+      );
       setLoading(false);
     }
   };
@@ -55,14 +69,19 @@ export function OnboardingWizard({ hasInvite = false, token }: { hasInvite?: boo
             >
               <h2 className="text-3xl font-display font-medium tracking-tight">
                 Welcome to Otogent <br />
-                <span className="text-muted-foreground text-2xl">Build Your AI Workforce</span>
+                <span className="text-muted-foreground text-2xl">
+                  Build Your AI Workforce
+                </span>
               </h2>
               <p className="text-muted-foreground">
-                {hasInvite 
+                {hasInvite
                   ? "You've been invited to join an organization. Complete your profile to get started."
                   : "Set up your workspace and get ready to automate your hardest work."}
               </p>
-              <Button onClick={handleNext} className="w-full py-6 text-lg rounded-xl">
+              <Button
+                onClick={handleNext}
+                className="w-full py-6 text-lg rounded-xl"
+              >
                 Get Started
               </Button>
             </motion.div>
@@ -85,7 +104,9 @@ export function OnboardingWizard({ hasInvite = false, token }: { hasInvite?: boo
                   <Input
                     placeholder="Jane Doe"
                     value={formData.fullName}
-                    onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, fullName: e.target.value })
+                    }
                   />
                 </div>
                 {!hasInvite && (
@@ -95,14 +116,21 @@ export function OnboardingWizard({ hasInvite = false, token }: { hasInvite?: boo
                       <Input
                         placeholder="Acme Corp"
                         value={formData.companyName}
-                        onChange={(e) => setFormData({ ...formData, companyName: e.target.value })}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            companyName: e.target.value,
+                          })
+                        }
                       />
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-2">
                         <Label>Company Size</Label>
                         <Select
-                          onValueChange={(val) => setFormData({ ...formData, companySize: val })}
+                          onValueChange={(val) =>
+                            setFormData({ ...formData, companySize: val })
+                          }
                           value={formData.companySize}
                         >
                           <SelectTrigger>
@@ -120,7 +148,9 @@ export function OnboardingWizard({ hasInvite = false, token }: { hasInvite?: boo
                         <Input
                           placeholder="CTO"
                           value={formData.role}
-                          onChange={(e) => setFormData({ ...formData, role: e.target.value })}
+                          onChange={(e) =>
+                            setFormData({ ...formData, role: e.target.value })
+                          }
                         />
                       </div>
                     </div>
@@ -132,33 +162,49 @@ export function OnboardingWizard({ hasInvite = false, token }: { hasInvite?: boo
                     <Input
                       placeholder="Product Manager"
                       value={formData.role}
-                      onChange={(e) => setFormData({ ...formData, role: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({ ...formData, role: e.target.value })
+                      }
                     />
                   </div>
                 )}
                 <div className="space-y-2">
                   <Label>Primary Use Case</Label>
                   <Select
-                    onValueChange={(val) => setFormData({ ...formData, useCase: val })}
+                    onValueChange={(val) =>
+                      setFormData({ ...formData, useCase: val })
+                    }
                     value={formData.useCase}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Select use case" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="Customer Support">Customer Support</SelectItem>
+                      <SelectItem value="Customer Support">
+                        Customer Support
+                      </SelectItem>
                       <SelectItem value="Data Entry">Data Entry</SelectItem>
-                      <SelectItem value="Sales Outreach">Sales Outreach</SelectItem>
-                      <SelectItem value="Content Creation">Content Creation</SelectItem>
+                      <SelectItem value="Sales Outreach">
+                        Sales Outreach
+                      </SelectItem>
+                      <SelectItem value="Content Creation">
+                        Content Creation
+                      </SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
-                <Button 
-                  onClick={handleSubmit} 
+                <Button
+                  onClick={handleSubmit}
                   className="w-full py-6 text-lg rounded-xl mt-4"
                   disabled={loading}
                 >
-                  {loading ? <Loader2 className="animate-spin" /> : (hasInvite ? "Join Organization" : "Create Workspace")}
+                  {loading ? (
+                    <Loader2 className="animate-spin" />
+                  ) : hasInvite ? (
+                    "Join Organization"
+                  ) : (
+                    "Create Workspace"
+                  )}
                 </Button>
               </div>
             </motion.div>

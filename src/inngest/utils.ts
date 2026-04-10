@@ -1,6 +1,6 @@
 import { createId } from "@paralleldrive/cuid2";
-import toposort from "toposort";
 import type { Connection, Node } from "@prisma/client";
+import toposort from "toposort";
 import { inngest } from "./client";
 
 export const topologicalSort = (

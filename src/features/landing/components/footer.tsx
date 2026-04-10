@@ -38,7 +38,7 @@ export function Footer() {
           <div className="self-start">
             <div className="mb-3 flex items-center gap-2.5">
               <Image
-                src="/otogent-logo.png"
+                src="/logo.svg"
                 alt="Otogent"
                 width={24}
                 height={24}

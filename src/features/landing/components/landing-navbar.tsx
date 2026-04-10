@@ -21,7 +21,7 @@ export function LandingNavbar() {
     <nav className="fixed inset-x-0 top-0 z-50 border-b border-border/60 bg-background/85 backdrop-blur-xl">
       <div className="container flex h-16 items-center justify-between">
         <Link href="/" className="flex items-center gap-2.5">
-          <Image src="/otogent-logo.png" alt="Otogent" width={28} height={28} />
+          <Image src="/logo.svg" alt="Otogent" width={28} height={28} />
           <span className="font-brand text-2xl font-bold tracking-tight">
             otogent
           </span>

@@ -1,8 +1,8 @@
 "use server";
 
-import prisma from "@/lib/db";
-import { requireAuth } from "@/lib/auth-utils";
 import { redirect } from "next/navigation";
+import { requireAuth } from "@/lib/auth-utils";
+import prisma from "@/lib/db";
 
 export async function selectFreeTier() {
   const session = await requireAuth();
@@ -17,7 +17,7 @@ export async function selectFreeTier() {
   }
 
   const existingSubscription = await prisma.subscription.findUnique({
-    where: { organizationId: user.organizationId }
+    where: { organizationId: user.organizationId },
   });
 
   if (existingSubscription) {

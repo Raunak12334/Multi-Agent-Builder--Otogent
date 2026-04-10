@@ -1,12 +1,12 @@
 "use server";
 
-import prisma from "@/lib/db";
-import { requireOrganization, assertSameOrganization } from "@/lib/auth-utils";
+import crypto from "node:crypto";
 import { revalidatePath } from "next/cache";
+import { assertSameOrganization, requireOrganization } from "@/lib/auth-utils";
+import prisma from "@/lib/db";
 import { sendInviteEmail } from "@/lib/email";
 import { logAudit } from "@/lib/log-audit";
 import { rateLimit } from "@/lib/rate-limit";
-import crypto from "crypto";
 
 export async function inviteTeamMember(email: string, organizationId: string) {
   const { user } = await requireOrganization();
@@ -24,12 +24,12 @@ export async function inviteTeamMember(email: string, organizationId: string) {
 
   const currentUser = await prisma.user.findUnique({
     where: { id: user.id },
-    include: { organization: true }
+    include: { organization: true },
   });
 
   // Check if user is already in the organization
   const existingUser = await prisma.user.findUnique({
-    where: { email: normalizedEmail }
+    where: { email: normalizedEmail },
   });
 
   if (existingUser && existingUser.organizationId === organizationId) {
@@ -41,19 +41,22 @@ export async function inviteTeamMember(email: string, organizationId: string) {
     where: {
       email_organizationId: {
         email: normalizedEmail,
-        organizationId
+        organizationId,
       },
-      deletedAt: null // Only consider invites that are not soft-deleted
-    }
+      deletedAt: null, // Only consider invites that are not soft-deleted
+    },
   });
 
   if (existingInvite) {
-    if (existingInvite.status === "PENDING" && existingInvite.expiresAt > new Date()) {
+    if (
+      existingInvite.status === "PENDING" &&
+      existingInvite.expiresAt > new Date()
+    ) {
       throw new Error("A pending invite already exists for this email.");
     }
     await prisma.teamInvite.update({
       where: { id: existingInvite.id },
-      data: { deletedAt: new Date() }
+      data: { deletedAt: new Date() },
     });
   }
 
@@ -69,12 +72,15 @@ export async function inviteTeamMember(email: string, organizationId: string) {
       organizationId,
       invitedById: user.id,
       expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
-      role: "USER"
-    }
+      role: "USER",
+    },
   });
 
   // Send real email invite using Resend
-  if (process.env.RESEND_API_KEY && process.env.RESEND_API_KEY !== "re_NUfc8kGG_Q4qwjpEkjcB2EbCNYDpWfPpN") {
+  if (
+    process.env.RESEND_API_KEY &&
+    process.env.RESEND_API_KEY !== "re_NUfc8kGG_Q4qwjpEkjcB2EbCNYDpWfPpN"
+  ) {
     await sendInviteEmail({
       to: normalizedEmail,
       organizationName: currentUser?.organization?.name || "Our Team",
@@ -84,16 +90,16 @@ export async function inviteTeamMember(email: string, organizationId: string) {
   }
 
   revalidatePath("/team");
-  
+
   await logAudit({
     organizationId,
     userId: user.id,
     action: "team.invite_sent",
-    metadata: { invitedEmail: email, inviteId: invite.id }
+    metadata: { invitedEmail: email, inviteId: invite.id },
   });
-  
+
   const inviteLink = `${process.env.NEXT_PUBLIC_APP_URL}/signup?token=${token}`; // Use the unhashed token for the link
-  
+
   return { success: true, inviteId: invite.id, inviteLink };
 }
 
@@ -105,7 +111,7 @@ export async function revokeInvite(inviteId: string) {
   }
 
   const invite = await prisma.teamInvite.findUnique({
-    where: { id: inviteId }
+    where: { id: inviteId },
   });
 
   if (!invite) throw new Error("Invite not found");
@@ -113,21 +119,24 @@ export async function revokeInvite(inviteId: string) {
 
   await prisma.teamInvite.update({
     where: { id: inviteId },
-    data: { status: "REVOKED", deletedAt: new Date() }
+    data: { status: "REVOKED", deletedAt: new Date() },
   });
 
   await logAudit({
     organizationId: user.organizationId,
     userId: user.id,
     action: "team.invite_revoked",
-    metadata: { inviteId }
+    metadata: { inviteId },
   });
 
   revalidatePath("/team");
   return { success: true };
 }
 
-export async function changeUserRole(targetUserId: string, newRole: "ADMIN" | "USER") {
+export async function changeUserRole(
+  targetUserId: string,
+  newRole: "ADMIN" | "USER",
+) {
   const { user } = await requireOrganization();
 
   if (user.role !== "ADMIN") {
@@ -139,7 +148,7 @@ export async function changeUserRole(targetUserId: string, newRole: "ADMIN" | "U
   }
 
   const targetUser = await prisma.user.findUnique({
-    where: { id: targetUserId }
+    where: { id: targetUserId },
   });
 
   if (!targetUser) throw new Error("User not found");
@@ -147,14 +156,14 @@ export async function changeUserRole(targetUserId: string, newRole: "ADMIN" | "U
 
   await prisma.user.update({
     where: { id: targetUserId },
-    data: { role: newRole }
+    data: { role: newRole },
   });
 
   await logAudit({
     organizationId: user.organizationId,
     userId: user.id,
     action: "team.user_role_changed",
-    metadata: { targetUserId, newRole }
+    metadata: { targetUserId, newRole },
   });
 
   revalidatePath("/team");
@@ -173,7 +182,7 @@ export async function removeUserFromWorkspace(targetUserId: string) {
   }
 
   const targetUser = await prisma.user.findUnique({
-    where: { id: targetUserId }
+    where: { id: targetUserId },
   });
 
   if (!targetUser) throw new Error("User not found");
@@ -181,17 +190,17 @@ export async function removeUserFromWorkspace(targetUserId: string) {
 
   await prisma.user.update({
     where: { id: targetUserId },
-    data: { 
+    data: {
       organizationId: null,
-      role: "USER" 
-    }
+      role: "USER",
+    },
   });
 
   await logAudit({
     organizationId: user.organizationId,
     userId: user.id,
     action: "team.user_removed",
-    metadata: { targetUserId }
+    metadata: { targetUserId },
   });
 
   revalidatePath("/team");

@@ -1,7 +1,7 @@
+import crypto from "node:crypto";
 import { enforceAppRouting } from "@/lib/auth-utils";
-import { OnboardingWizard } from "./wizard";
 import prisma from "@/lib/db";
-import crypto from "crypto";
+import { OnboardingWizard } from "./wizard";
 
 export default async function OnboardingPage({
   searchParams,
@@ -13,20 +13,20 @@ export default async function OnboardingPage({
 
   let pendingInvite = null;
   const userEmail = session.user.email.toLowerCase().trim();
-  
+
   if (token) {
     const tokenHash = crypto.createHash("sha256").update(token).digest("hex");
     pendingInvite = await prisma.teamInvite.findUnique({
       where: { tokenHash },
-      include: { organization: true }
+      include: { organization: true },
     });
   } else {
     pendingInvite = await prisma.teamInvite.findFirst({
       where: {
         email: userEmail,
         status: "PENDING",
-        expiresAt: { gt: new Date() }
-      }
+        expiresAt: { gt: new Date() },
+      },
     });
   }
 

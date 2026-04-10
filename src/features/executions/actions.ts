@@ -1,23 +1,23 @@
 "use server";
 
 import { getSubscriptionToken } from "@inngest/realtime";
-import { inngest } from "@/inngest/client";
-import { xChannel } from "@/inngest/channels/x";
-import { linkedinChannel } from "@/inngest/channels/linkedin";
-import { instagramChannel } from "@/inngest/channels/instagram";
-import { telegramChannel } from "@/inngest/channels/telegram";
-import { googleSheetsChannel } from "@/inngest/channels/google-sheets";
-import { emailChannel } from "@/inngest/channels/email";
+import { anthropicChannel } from "@/inngest/channels/anthropic";
 import { dbQueryChannel } from "@/inngest/channels/db-query";
-import { twilioSmsChannel } from "@/inngest/channels/twilio-sms";
-import { hubspotChannel } from "@/inngest/channels/hubspot";
-import { shopifyChannel } from "@/inngest/channels/shopify";
-import { slackChannel } from "@/inngest/channels/slack";
 import { discordChannel } from "@/inngest/channels/discord";
+import { emailChannel } from "@/inngest/channels/email";
 import { geminiChannel } from "@/inngest/channels/gemini";
 import { gemmaChannel } from "@/inngest/channels/gemma";
+import { googleSheetsChannel } from "@/inngest/channels/google-sheets";
+import { hubspotChannel } from "@/inngest/channels/hubspot";
 import { huggingFaceChannel } from "@/inngest/channels/huggingface";
-import { anthropicChannel } from "@/inngest/channels/anthropic";
+import { instagramChannel } from "@/inngest/channels/instagram";
+import { linkedinChannel } from "@/inngest/channels/linkedin";
+import { shopifyChannel } from "@/inngest/channels/shopify";
+import { slackChannel } from "@/inngest/channels/slack";
+import { telegramChannel } from "@/inngest/channels/telegram";
+import { twilioSmsChannel } from "@/inngest/channels/twilio-sms";
+import { xChannel } from "@/inngest/channels/x";
+import { inngest } from "@/inngest/client";
 
 export async function fetchSlackRealtimeToken() {
   return await getSubscriptionToken(inngest, {

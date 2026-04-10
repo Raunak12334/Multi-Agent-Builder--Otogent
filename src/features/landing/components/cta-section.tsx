@@ -15,7 +15,8 @@ export function CTASection() {
               <span className="text-gradient">orchestrated.</span>
             </h2>
             <p className="mx-auto mb-8 max-w-md text-muted-foreground">
-              Join the builders creating the next generation of AI-powered applications — without the complexity.
+              Join the builders creating the next generation of AI-powered
+              applications — without the complexity.
             </p>
             <Button
               asChild

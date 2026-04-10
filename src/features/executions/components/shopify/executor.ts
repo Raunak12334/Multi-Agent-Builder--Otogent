@@ -1,5 +1,5 @@
-import { z } from "zod";
 import { NonRetriableError } from "inngest";
+import { z } from "zod";
 import type { NodeExecutor } from "@/features/executions/types";
 import { shopifyChannel } from "@/inngest/channels/shopify";
 
@@ -32,16 +32,16 @@ export const shopifyExecutor: NodeExecutor<ShopifyData> = async ({
   try {
     const result = await step.run("shopify-api-call", async () => {
       const startTime = Date.now();
-      
+
       console.log(`Shopify ${validated.action} on ${validated.shopUrl}`);
-      
+
       return {
         success: true,
         data: { id: "shop_987", status: "fulfilled" },
         metadata: {
           executionTime: Date.now() - startTime,
           nodeType: "SHOPIFY",
-        }
+        },
       };
     });
 

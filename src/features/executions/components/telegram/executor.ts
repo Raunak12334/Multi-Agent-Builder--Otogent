@@ -1,9 +1,9 @@
 import Handlebars from "handlebars";
 import { decode } from "html-entities";
 import { NonRetriableError } from "inngest";
+import ky from "ky";
 import type { NodeExecutor } from "@/features/executions/types";
 import { telegramChannel } from "@/inngest/channels/telegram";
-import ky from "ky";
 
 type TelegramData = {
   variableName?: string;
@@ -35,14 +35,19 @@ export const telegramExecutor: NodeExecutor<TelegramData> = async ({
   try {
     const result = await step.run("telegram-send-message", async () => {
       if (!data.botToken || !data.chatId) {
-        console.log(`[Telegram Node Mock] Sending message to ${data.chatId || 'unknown'}: ${text}`);
+        console.log(
+          `[Telegram Node Mock] Sending message to ${data.chatId || "unknown"}: ${text}`,
+        );
       } else {
-        await ky.post(`https://api.telegram.org/bot${data.botToken}/sendMessage`, {
-          json: {
-            chat_id: data.chatId,
-            text,
+        await ky.post(
+          `https://api.telegram.org/bot${data.botToken}/sendMessage`,
+          {
+            json: {
+              chat_id: data.chatId,
+              text,
+            },
           },
-        });
+        );
       }
 
       if (!data.variableName) {

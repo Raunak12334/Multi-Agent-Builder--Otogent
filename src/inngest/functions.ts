@@ -8,30 +8,30 @@ import { isLangGraphEnabled } from "@/langgraph/config";
 import { runWorkflowGraph } from "@/langgraph/run-graph";
 import prisma from "@/lib/db";
 import { anthropicChannel } from "./channels/anthropic";
+import { dbQueryChannel } from "./channels/db-query";
 import { discordChannel } from "./channels/discord";
+import { emailChannel } from "./channels/email";
+import { emailParserChannel } from "./channels/email-parser";
+import { fileStorageChannel } from "./channels/file-storage";
 import { geminiChannel } from "./channels/gemini";
 import { gemmaChannel } from "./channels/gemma";
 import { googleFormTriggerChannel } from "./channels/google-form-trigger";
+import { googleSheetsChannel } from "./channels/google-sheets";
 import { httpRequestChannel } from "./channels/http-request";
+import { hubspotChannel } from "./channels/hubspot";
 import { huggingFaceChannel } from "./channels/huggingface";
-import { manualTriggerChannel } from "./channels/manual-trigger";
-import { openAiChannel } from "./channels/openai";
-import { slackChannel } from "./channels/slack";
 import { instagramChannel } from "./channels/instagram";
 import { linkedinChannel } from "./channels/linkedin";
-import { telegramChannel } from "./channels/telegram";
-import { xChannel } from "./channels/x";
-import { googleSheetsChannel } from "./channels/google-sheets";
-import { emailChannel } from "./channels/email";
-import { emailParserChannel } from "./channels/email-parser";
+import { manualTriggerChannel } from "./channels/manual-trigger";
+import { openAiChannel } from "./channels/openai";
 import { scheduleChannel } from "./channels/schedule";
-import { fileStorageChannel } from "./channels/file-storage";
-import { dbQueryChannel } from "./channels/db-query";
-import { twilioSmsChannel } from "./channels/twilio-sms";
-import { hubspotChannel } from "./channels/hubspot";
 import { shopifyChannel } from "./channels/shopify";
+import { slackChannel } from "./channels/slack";
 import { stripeTriggerChannel } from "./channels/stripe-trigger";
+import { telegramChannel } from "./channels/telegram";
+import { twilioSmsChannel } from "./channels/twilio-sms";
 import { webhookTriggerChannel } from "./channels/webhook-trigger";
+import { xChannel } from "./channels/x";
 import { inngest } from "./client";
 import { topologicalSort } from "./utils";
 
@@ -174,19 +174,24 @@ export const executeWorkflow = inngest.createFunction(
     onFailure: async ({ event }) => {
       const error = event.data.error;
       const originalEvent = event.data.event;
-      
-      console.error(`Workflow execution failed for event ${originalEvent.id}:`, error.message);
-      
+
+      console.error(
+        `Workflow execution failed for event ${originalEvent.id}:`,
+        error.message,
+      );
+
       // Find execution by inngestEventId (non-unique index)
       const execution = await prisma.execution.findFirst({
         where: { inngestEventId: originalEvent.id },
       });
-      
+
       if (!execution) {
-        console.warn(`No execution found for inngestEventId: ${originalEvent.id}`);
+        console.warn(
+          `No execution found for inngestEventId: ${originalEvent.id}`,
+        );
         return;
       }
-      
+
       return prisma.execution.update({
         where: { id: execution.id },
         data: {
@@ -238,7 +243,9 @@ export const executeWorkflow = inngest.createFunction(
       throw new NonRetriableError("Event ID or workflow ID is missing");
     }
 
-    console.log(`Starting workflow execution for workflowId: ${workflowId}, executionId: ${resumeExecutionId || 'new'}`);
+    console.log(
+      `Starting workflow execution for workflowId: ${workflowId}, executionId: ${resumeExecutionId || "new"}`,
+    );
 
     const execution = await step.run("create-execution", async () => {
       if (resumeExecutionId) {
@@ -266,36 +273,39 @@ export const executeWorkflow = inngest.createFunction(
       });
     });
 
-    const { workflowDefinition, organizationId } = await step.run("prepare-workflow-context", async () => {
-      const workflow = await prisma.workflow.findUniqueOrThrow({
-        where: { id: workflowId },
-        include: {
-          nodes: true,
-          connections: true,
-        },
-      });
+    const { workflowDefinition, organizationId } = await step.run(
+      "prepare-workflow-context",
+      async () => {
+        const workflow = await prisma.workflow.findUniqueOrThrow({
+          where: { id: workflowId },
+          include: {
+            nodes: true,
+            connections: true,
+          },
+        });
 
-      const orderedNodes = topologicalSort(
-        workflow.nodes,
-        workflow.connections,
-      );
+        const orderedNodes = topologicalSort(
+          workflow.nodes,
+          workflow.connections,
+        );
 
-      return {
-        organizationId: workflow.organizationId,
-        workflowDefinition: {
-          nodes: orderedNodes.map((node) => ({
-            id: node.id,
-            type: node.type,
-            data: node.data,
-          })),
-          connections: workflow.connections.map((connection) => ({
-            fromNodeId: connection.fromNodeId,
-            toNodeId: connection.toNodeId,
-            fromOutput: connection.fromOutput,
-          })),
-        }
-      };
-    });
+        return {
+          organizationId: workflow.organizationId,
+          workflowDefinition: {
+            nodes: orderedNodes.map((node) => ({
+              id: node.id,
+              type: node.type,
+              data: node.data,
+            })),
+            connections: workflow.connections.map((connection) => ({
+              fromNodeId: connection.fromNodeId,
+              toNodeId: connection.toNodeId,
+              fromOutput: connection.fromOutput,
+            })),
+          },
+        };
+      },
+    );
 
     const graphResult = isLangGraphEnabled()
       ? await runWorkflowGraph({

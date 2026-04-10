@@ -3,7 +3,6 @@ import { decode } from "html-entities";
 import { NonRetriableError } from "inngest";
 import type { NodeExecutor } from "@/features/executions/types";
 import { xChannel } from "@/inngest/channels/x";
-import ky from "ky";
 
 type XData = {
   variableName?: string;
@@ -35,7 +34,10 @@ export const xExecutor: NodeExecutor<XData> = async ({
     throw new NonRetriableError("X node: Tweet content is required");
   }
 
-  const content = decode(Handlebars.compile(data.content)(context)).slice(0, 280);
+  const content = decode(Handlebars.compile(data.content)(context)).slice(
+    0,
+    280,
+  );
 
   try {
     const result = await step.run("x-post-tweet", async () => {

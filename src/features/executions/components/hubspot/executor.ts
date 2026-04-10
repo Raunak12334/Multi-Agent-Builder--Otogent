@@ -1,5 +1,5 @@
-import { z } from "zod";
 import { NonRetriableError } from "inngest";
+import { z } from "zod";
 import type { NodeExecutor } from "@/features/executions/types";
 import { hubspotChannel } from "@/inngest/channels/hubspot";
 
@@ -31,16 +31,16 @@ export const hubspotExecutor: NodeExecutor<HubspotData> = async ({
   try {
     const result = await step.run("hubspot-api-call", async () => {
       const startTime = Date.now();
-      
+
       console.log(`HubSpot ${validated.action}:`, validated.properties);
-      
+
       return {
         success: true,
         data: { id: "hs_12345", properties: validated.properties },
         metadata: {
           executionTime: Date.now() - startTime,
           nodeType: "HUBSPOT",
-        }
+        },
       };
     });
 

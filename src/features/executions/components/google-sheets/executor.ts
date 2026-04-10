@@ -1,10 +1,10 @@
-import { z } from "zod";
+import { google } from "googleapis";
 import { NonRetriableError } from "inngest";
+import { z } from "zod";
 import type { NodeExecutor } from "@/features/executions/types";
 import { googleSheetsChannel } from "@/inngest/channels/google-sheets";
 import prisma from "@/lib/db";
 import { decrypt } from "@/lib/encryption";
-import { google } from "googleapis";
 
 const googleSheetsSchema = z.object({
   variableName: z.string().min(1),
@@ -48,7 +48,9 @@ export const googleSheetsExecutor: NodeExecutor<GoogleSheetsData> = async ({
         status: "error",
       }),
     );
-    throw new NonRetriableError("Google Sheets node: Credential value is empty");
+    throw new NonRetriableError(
+      "Google Sheets node: Credential value is empty",
+    );
   }
 
   const auth = new google.auth.OAuth2();
@@ -83,8 +85,8 @@ export const googleSheetsExecutor: NodeExecutor<GoogleSheetsData> = async ({
         metadata: {
           executionTime: Date.now() - startTime,
           nodeType: "GOOGLE_SHEETS",
-          action: validated.action
-        }
+          action: validated.action,
+        },
       };
     });
 

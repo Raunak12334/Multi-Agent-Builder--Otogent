@@ -1,9 +1,8 @@
-import { z } from "zod";
+import Handlebars from "handlebars";
 import { NonRetriableError } from "inngest";
+import { z } from "zod";
 import type { NodeExecutor } from "@/features/executions/types";
 import { emailChannel } from "@/inngest/channels/email";
-import Handlebars from "handlebars";
-import nodemailer from "nodemailer";
 
 const emailSendSchema = z.object({
   variableName: z.string().min(1),
@@ -34,22 +33,22 @@ export const emailSendExecutor: NodeExecutor<EmailSendData> = async ({
   const validated = emailSendSchema.parse(data);
 
   const subject = Handlebars.compile(validated.subject)(context);
-  const body = Handlebars.compile(validated.body)(context);
+  const _body = Handlebars.compile(validated.body)(context);
 
   try {
     const result = await step.run("send-email", async () => {
       const startTime = Date.now();
-      
+
       // Integration logic (Mocked or using Nodemailer)
       console.log(`Sending email to ${validated.to}: ${subject}`);
-      
+
       return {
         success: true,
         data: { to: validated.to, subject },
         metadata: {
           executionTime: Date.now() - startTime,
           nodeType: "EMAIL_SEND",
-        }
+        },
       };
     });
 

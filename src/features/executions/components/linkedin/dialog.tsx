@@ -1,5 +1,10 @@
 "use client";
 
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useEffect } from "react";
+import { useForm } from "react-hook-form";
+import z from "zod";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -11,7 +16,6 @@ import {
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -19,11 +23,6 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import z from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { useEffect } from "react";
-import { Button } from "@/components/ui/button";
 
 const formSchema = z.object({
   variableName: z.string().min(1),
@@ -80,14 +79,19 @@ export const LinkedinDialog = ({
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4 mt-4">
+          <form
+            onSubmit={form.handleSubmit(handleSubmit)}
+            className="space-y-4 mt-4"
+          >
             <FormField
               control={form.control}
               name="variableName"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Variable Name</FormLabel>
-                  <FormControl><Input {...field} /></FormControl>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
@@ -98,7 +102,9 @@ export const LinkedinDialog = ({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Post Title (Internal)</FormLabel>
-                  <FormControl><Input {...field} /></FormControl>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
@@ -109,12 +115,16 @@ export const LinkedinDialog = ({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Post Content</FormLabel>
-                  <FormControl><Textarea className="min-h-[100px]" {...field} /></FormControl>
+                  <FormControl>
+                    <Textarea className="min-h-[100px]" {...field} />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
-            <DialogFooter><Button type="submit">Save</Button></DialogFooter>
+            <DialogFooter>
+              <Button type="submit">Save</Button>
+            </DialogFooter>
           </form>
         </Form>
       </DialogContent>

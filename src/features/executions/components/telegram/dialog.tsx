@@ -1,5 +1,10 @@
 "use client";
 
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useEffect } from "react";
+import { useForm } from "react-hook-form";
+import z from "zod";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -18,11 +23,6 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import z from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { useEffect } from "react";
-import { Button } from "@/components/ui/button";
 
 const formSchema = z.object({
   variableName: z.string().min(1),
@@ -77,14 +77,19 @@ export const TelegramDialog = ({
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 mt-4">
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="space-y-4 mt-4"
+          >
             <FormField
               control={form.control}
               name="variableName"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Variable Name</FormLabel>
-                  <FormControl><Input {...field} /></FormControl>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
@@ -95,7 +100,9 @@ export const TelegramDialog = ({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Bot Token</FormLabel>
-                  <FormControl><Input type="password" {...field} /></FormControl>
+                  <FormControl>
+                    <Input type="password" {...field} />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
@@ -106,7 +113,9 @@ export const TelegramDialog = ({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Chat ID</FormLabel>
-                  <FormControl><Input {...field} /></FormControl>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
@@ -117,12 +126,16 @@ export const TelegramDialog = ({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Message Text</FormLabel>
-                  <FormControl><Textarea {...field} /></FormControl>
+                  <FormControl>
+                    <Textarea {...field} />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
-            <DialogFooter><Button type="submit">Save</Button></DialogFooter>
+            <DialogFooter>
+              <Button type="submit">Save</Button>
+            </DialogFooter>
           </form>
         </Form>
       </DialogContent>

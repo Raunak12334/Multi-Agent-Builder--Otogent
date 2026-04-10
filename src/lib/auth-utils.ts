@@ -21,27 +21,27 @@ export const requireAuth = async () => {
  */
 export const requireOrganization = async () => {
   const session = await requireAuth();
-  
+
   const user = await prisma.user.findUnique({
     where: { id: session.user.id },
-    select: { 
-      id: true, 
+    select: {
+      id: true,
       organizationId: true,
-      role: true 
-    }
+      role: true,
+    },
   });
 
   if (!user || !user.organizationId) {
     redirect("/onboarding");
   }
 
-  return { 
-    session, 
+  return {
+    session,
     user: {
       ...session.user,
       organizationId: user.organizationId,
-      role: user.role
-    } 
+      role: user.role,
+    },
   };
 };
 
@@ -49,9 +49,14 @@ export const requireOrganization = async () => {
  * Security helper to ensure a resource belongs to the user's organization.
  * Use this in every server action/API that fetches by ID.
  */
-export function assertSameOrganization(resourceOrgId: string, userOrgId: string) {
+export function assertSameOrganization(
+  resourceOrgId: string,
+  userOrgId: string,
+) {
   if (resourceOrgId !== userOrgId) {
-    console.error(`SECURITY ALERT: Cross-organization access attempt. User Org: ${userOrgId}, Resource Org: ${resourceOrgId}`);
+    console.error(
+      `SECURITY ALERT: Cross-organization access attempt. User Org: ${userOrgId}, Resource Org: ${resourceOrgId}`,
+    );
     throw new Error("Unauthorized: Access Denied");
   }
 }
@@ -68,14 +73,14 @@ export const requireUnauth = async () => {
 
 export const enforceAppRouting = async (currentPath?: string) => {
   const session = await requireAuth();
-  
+
   const user = await prisma.user.findUnique({
     where: { id: session.user.id },
     include: {
       organization: {
-        include: { subscription: true }
-      }
-    }
+        include: { subscription: true },
+      },
+    },
   });
 
   if (!user) {
@@ -83,7 +88,7 @@ export const enforceAppRouting = async (currentPath?: string) => {
   }
 
   const { organizationId, onboardingCompleted, organization } = user;
-  
+
   if (!organizationId || !onboardingCompleted) {
     if (currentPath !== "/onboarding") {
       redirect("/onboarding");
@@ -95,12 +100,12 @@ export const enforceAppRouting = async (currentPath?: string) => {
     if (currentPath !== "/pricing") {
       redirect("/pricing");
     }
-    return { session, user }; 
+    return { session, user };
   }
 
   if (currentPath === "/onboarding" || currentPath === "/pricing") {
-    redirect("/workflows"); 
+    redirect("/workflows");
   }
-  
+
   return { session, user };
 };

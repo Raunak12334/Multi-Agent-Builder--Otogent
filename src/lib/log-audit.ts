@@ -1,7 +1,6 @@
-import { Prisma } from "@prisma/client";
-
+import type { Prisma } from "@prisma/client";
+import type { InputJsonValue } from "@prisma/client/runtime/library";
 import prisma from "@/lib/db";
-import { InputJsonValue } from "@prisma/client/runtime/library";
 
 export async function logAudit(params: {
   userId?: string;

@@ -1,9 +1,9 @@
-import { auth } from "@/lib/auth";
-import { polarClient } from "@/lib/polar";
 import { initTRPC, TRPCError } from "@trpc/server";
 import { headers } from "next/headers";
 import { cache } from "react";
 import superjson from "superjson";
+import { auth } from "@/lib/auth";
+import { polarClient } from "@/lib/polar";
 export const createTRPCContext = cache(async () => {
   /**
    * @see: https://trpc.io/docs/server/context
@@ -24,6 +24,7 @@ const t = initTRPC.create({
 export const createTRPCRouter = t.router;
 export const createCallerFactory = t.createCallerFactory;
 export const baseProcedure = t.procedure;
+
 import prisma from "@/lib/db";
 
 export const protectedProcedure = baseProcedure.use(async ({ ctx, next }) => {
@@ -67,7 +68,9 @@ export const premiumProcedure = protectedProcedure.use(
       where: { organizationId: ctx.auth.organizationId },
     });
 
-    const isLocalActive = subscription && (!subscription.expiresAt || subscription.expiresAt > new Date());
+    const isLocalActive =
+      subscription &&
+      (!subscription.expiresAt || subscription.expiresAt > new Date());
 
     if (isLocalActive) {
       return next({ ctx });
@@ -84,7 +87,8 @@ export const premiumProcedure = protectedProcedure.use(
     ) {
       throw new TRPCError({
         code: "FORBIDDEN",
-        message: "Active subscription required. Your free trial may have expired.",
+        message:
+          "Active subscription required. Your free trial may have expired.",
       });
     }
 

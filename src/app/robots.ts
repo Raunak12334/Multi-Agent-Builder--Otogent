@@ -1,12 +1,12 @@
-import type { MetadataRoute } from 'next'
- 
+import type { MetadataRoute } from "next";
+
 export default function robots(): MetadataRoute.Robots {
   return {
     rules: {
-      userAgent: '*',
-      allow: '/',
-      disallow: ['/api/', '/dashboard/', '/onboarding/'],
+      userAgent: "*",
+      allow: "/",
+      disallow: ["/api/", "/dashboard/", "/onboarding/"],
     },
-    sitemap: 'https://otogent.com/sitemap.xml',
-  }
+    sitemap: "https://otogent.com/sitemap.xml",
+  };
 }

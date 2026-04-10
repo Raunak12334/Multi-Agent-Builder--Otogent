@@ -1,12 +1,14 @@
 "use client";
 
+import { Check, Loader2, X } from "lucide-react";
 import { useState } from "react";
-import { Check, X, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { selectFreeTier } from "./actions";
 
 export function PricingTable() {
-  const [loading, setLoading] = useState<"free" | "pro" | "enterprise" | null>(null);
+  const [loading, setLoading] = useState<"free" | "pro" | "enterprise" | null>(
+    null,
+  );
 
   const handleSelectFree = async () => {
     setLoading("free");
@@ -33,7 +35,8 @@ export function PricingTable() {
             Select Your Plan
           </h2>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-            Scale your multi-agent workforce. Start with our 7-day free trial on the Free Tier or jump into unparalleled productivity with Pro.
+            Scale your multi-agent workforce. Start with our 7-day free trial on
+            the Free Tier or jump into unparalleled productivity with Pro.
           </p>
         </div>
 
@@ -41,12 +44,20 @@ export function PricingTable() {
           {/* Free Tier */}
           <div className="border border-border bg-white dark:bg-slate-900 rounded-3xl p-8 shadow-sm relative flex flex-col">
             <h3 className="text-xl font-medium mb-2">Free Tier</h3>
-            <p className="text-muted-foreground text-sm mb-6">Perfect for trying out the platform.</p>
+            <p className="text-muted-foreground text-sm mb-6">
+              Perfect for trying out the platform.
+            </p>
             <div className="text-4xl font-semibold mb-6">$0</div>
             <ul className="space-y-4 mb-8 flex-1">
-              <li className="flex items-center gap-3 text-sm"><Check className="h-4 w-4 text-primary" /> 7 days free access</li>
-              <li className="flex items-center gap-3 text-sm"><Check className="h-4 w-4 text-primary" /> Max 2 Workflows</li>
-              <li className="flex items-center gap-3 text-sm text-muted-foreground"><X className="h-4 w-4" /> No custom models</li>
+              <li className="flex items-center gap-3 text-sm">
+                <Check className="h-4 w-4 text-primary" /> 7 days free access
+              </li>
+              <li className="flex items-center gap-3 text-sm">
+                <Check className="h-4 w-4 text-primary" /> Max 2 Workflows
+              </li>
+              <li className="flex items-center gap-3 text-sm text-muted-foreground">
+                <X className="h-4 w-4" /> No custom models
+              </li>
             </ul>
             <Button
               variant="outline"
@@ -54,7 +65,11 @@ export function PricingTable() {
               disabled={loading !== null}
               className="w-full rounded-xl py-6"
             >
-              {loading === "free" ? <Loader2 className="h-4 w-4 animate-spin" /> : "Start Free Trial"}
+              {loading === "free" ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                "Start Free Trial"
+              )}
             </Button>
           </div>
 
@@ -64,31 +79,58 @@ export function PricingTable() {
               Most Popular
             </div>
             <h3 className="text-xl font-medium mb-2">Pro</h3>
-            <p className="text-muted-foreground text-sm mb-6">For teams automating real workflows.</p>
-            <div className="text-4xl font-semibold mb-6">$49<span className="text-lg text-muted-foreground font-normal">/mo</span></div>
+            <p className="text-muted-foreground text-sm mb-6">
+              For teams automating real workflows.
+            </p>
+            <div className="text-4xl font-semibold mb-6">
+              $49
+              <span className="text-lg text-muted-foreground font-normal">
+                /mo
+              </span>
+            </div>
             <ul className="space-y-4 mb-8 flex-1">
-              <li className="flex items-center gap-3 text-sm"><Check className="h-4 w-4 text-primary" /> Unlimited Workflows</li>
-              <li className="flex items-center gap-3 text-sm"><Check className="h-4 w-4 text-primary" /> All Model integrations</li>
-              <li className="flex items-center gap-3 text-sm"><Check className="h-4 w-4 text-primary" /> Priority support</li>
+              <li className="flex items-center gap-3 text-sm">
+                <Check className="h-4 w-4 text-primary" /> Unlimited Workflows
+              </li>
+              <li className="flex items-center gap-3 text-sm">
+                <Check className="h-4 w-4 text-primary" /> All Model
+                integrations
+              </li>
+              <li className="flex items-center gap-3 text-sm">
+                <Check className="h-4 w-4 text-primary" /> Priority support
+              </li>
             </ul>
             <Button
               onClick={handleCheckoutPro}
               disabled={loading !== null}
               className="w-full rounded-xl py-6"
             >
-              {loading === "pro" ? <Loader2 className="h-4 w-4 animate-spin" /> : "Upgrade to Pro"}
+              {loading === "pro" ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                "Upgrade to Pro"
+              )}
             </Button>
           </div>
 
           {/* Enterprise Tier */}
           <div className="border border-border bg-white dark:bg-slate-900 rounded-3xl p-8 shadow-sm relative flex flex-col">
             <h3 className="text-xl font-medium mb-2">Enterprise</h3>
-            <p className="text-muted-foreground text-sm mb-6">Custom limits and dedicated hosting.</p>
+            <p className="text-muted-foreground text-sm mb-6">
+              Custom limits and dedicated hosting.
+            </p>
             <div className="text-4xl font-semibold mb-6">Custom</div>
             <ul className="space-y-4 mb-8 flex-1">
-              <li className="flex items-center gap-3 text-sm"><Check className="h-4 w-4 text-primary" /> Custom SLA</li>
-              <li className="flex items-center gap-3 text-sm"><Check className="h-4 w-4 text-primary" /> Dedicated success manager</li>
-              <li className="flex items-center gap-3 text-sm"><Check className="h-4 w-4 text-primary" /> On-prem deployments</li>
+              <li className="flex items-center gap-3 text-sm">
+                <Check className="h-4 w-4 text-primary" /> Custom SLA
+              </li>
+              <li className="flex items-center gap-3 text-sm">
+                <Check className="h-4 w-4 text-primary" /> Dedicated success
+                manager
+              </li>
+              <li className="flex items-center gap-3 text-sm">
+                <Check className="h-4 w-4 text-primary" /> On-prem deployments
+              </li>
             </ul>
             <Button
               variant="outline"

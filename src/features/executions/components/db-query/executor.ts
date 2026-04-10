@@ -1,5 +1,5 @@
-import { z } from "zod";
 import { NonRetriableError } from "inngest";
+import { z } from "zod";
 import type { NodeExecutor } from "@/features/executions/types";
 import { dbQueryChannel } from "@/inngest/channels/db-query";
 
@@ -31,18 +31,18 @@ export const dbQueryExecutor: NodeExecutor<DbQueryData> = async ({
   try {
     const result = await step.run("database-query", async () => {
       const startTime = Date.now();
-      
+
       // In a real scenario, you'd initialize a connection pool here
       // For security, we would use a dedicated restricted user
       console.log(`Executing SQL: ${validated.query}`);
-      
+
       return {
         success: true,
         data: [], // Mocked rows
         metadata: {
           executionTime: Date.now() - startTime,
           nodeType: "DB_QUERY",
-        }
+        },
       };
     });
 

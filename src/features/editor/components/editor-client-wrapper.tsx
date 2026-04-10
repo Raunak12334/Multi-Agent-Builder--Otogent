@@ -6,10 +6,10 @@ import { EditorLoading } from "./editor";
 // dynamic() with ssr:false must live in a Client Component
 export const EditorDynamic = dynamic(
   () => import("./editor").then((mod) => mod.Editor),
-  { ssr: false, loading: () => <EditorLoading /> }
+  { ssr: false, loading: () => <EditorLoading /> },
 );
 
 export const EditorErrorDynamic = dynamic(
   () => import("./editor").then((mod) => mod.EditorError),
-  { ssr: false }
+  { ssr: false },
 );

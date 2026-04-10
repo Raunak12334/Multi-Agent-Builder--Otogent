@@ -1,5 +1,6 @@
 import { serve } from "inngest/next";
 export const maxDuration = 60; // Max allowed for Vercel Hobby, completely solves AI timeouts
+
 import { inngest } from "@/inngest/client";
 import { executeWorkflow } from "@/inngest/functions";
 

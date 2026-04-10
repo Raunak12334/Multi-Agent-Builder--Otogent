@@ -1,8 +1,8 @@
-import { z } from "zod";
+import Handlebars from "handlebars";
 import { NonRetriableError } from "inngest";
+import { z } from "zod";
 import type { NodeExecutor } from "@/features/executions/types";
 import { twilioSmsChannel } from "@/inngest/channels/twilio-sms";
-import Handlebars from "handlebars";
 
 const twilioSmsSchema = z.object({
   variableName: z.string().min(1),
@@ -34,16 +34,16 @@ export const twilioSmsExecutor: NodeExecutor<TwilioSmsData> = async ({
   try {
     const result = await step.run("twilio-send-sms", async () => {
       const startTime = Date.now();
-      
+
       console.log(`Twilio: Sending SMS to ${validated.to}: ${body}`);
-      
+
       return {
         success: true,
         data: { messageSid: "SM_mock_123" },
         metadata: {
           executionTime: Date.now() - startTime,
           nodeType: "TWILIO_SMS",
-        }
+        },
       };
     });
 

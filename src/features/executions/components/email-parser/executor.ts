@@ -1,5 +1,5 @@
-import { z } from "zod";
 import { NonRetriableError } from "inngest";
+import { z } from "zod";
 import type { NodeExecutor } from "@/features/executions/types";
 import { emailParserChannel } from "@/inngest/channels/email-parser";
 
@@ -29,22 +29,22 @@ export const emailParserExecutor: NodeExecutor<EmailParserData> = async ({
   try {
     const result = await step.run("parse-email", async () => {
       const startTime = Date.now();
-      
+
       // Basic regex parsing for name/phone (Simplified for demonstration)
       const nameMatch = validated.emailContent.match(/Name:\s*(.*)/i);
       const phoneMatch = validated.emailContent.match(/Phone:\s*(.*)/i);
-      
+
       return {
         success: true,
         data: {
           name: nameMatch ? nameMatch[1].trim() : null,
           phone: phoneMatch ? phoneMatch[1].trim() : null,
-          fullContent: validated.emailContent
+          fullContent: validated.emailContent,
         },
         metadata: {
           executionTime: Date.now() - startTime,
           nodeType: "EMAIL_PARSER",
-        }
+        },
       };
     });
 

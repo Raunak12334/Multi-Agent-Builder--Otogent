@@ -1,5 +1,6 @@
 "use client";
 
+import { ExecutionStatus } from "@prisma/client";
 import { formatDistanceToNow } from "date-fns";
 import {
   CheckCircle2Icon,
@@ -28,7 +29,6 @@ import {
   useResumeExecution,
   useSuspenseExecution,
 } from "@/features/executions/hooks/use-executions";
-import { ExecutionStatus } from "@prisma/client";
 
 const getStatusIcon = (status: ExecutionStatus) => {
   switch (status) {

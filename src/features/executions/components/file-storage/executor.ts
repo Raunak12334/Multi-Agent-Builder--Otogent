@@ -1,5 +1,5 @@
-import { z } from "zod";
 import { NonRetriableError } from "inngest";
+import { z } from "zod";
 import type { NodeExecutor } from "@/features/executions/types";
 import { fileStorageChannel } from "@/inngest/channels/file-storage";
 
@@ -31,19 +31,21 @@ export const fileStorageExecutor: NodeExecutor<FileStorageData> = async ({
   try {
     const result = await step.run("upload-file", async () => {
       const startTime = Date.now();
-      
-      console.log(`Uploading file ${validated.fileName} to ${validated.provider}`);
-      
+
+      console.log(
+        `Uploading file ${validated.fileName} to ${validated.provider}`,
+      );
+
       return {
         success: true,
         data: {
           publicUrl: `https://storage.example.com/${validated.fileName}`,
-          provider: validated.provider
+          provider: validated.provider,
         },
         metadata: {
           executionTime: Date.now() - startTime,
           nodeType: "FILE_STORAGE",
-        }
+        },
       };
     });
 

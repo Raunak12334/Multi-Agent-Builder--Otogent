@@ -7,9 +7,16 @@ import {
   SearchIcon,
   TrashIcon,
 } from "lucide-react";
-import { Button } from "./ui/button";
 import Link from "next/link";
-import { Input } from "./ui/input";
+import { cn } from "@/lib/utils";
+import { Button } from "./ui/button";
+import { Card, CardContent, CardDescription, CardTitle } from "./ui/card";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "./ui/dropdown-menu";
 import {
   Empty,
   EmptyContent,
@@ -18,14 +25,7 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "./ui/empty";
-import { cn } from "@/lib/utils";
-import { Card, CardContent, CardDescription, CardTitle } from "./ui/card";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "./ui/dropdown-menu";
+import { Input } from "./ui/input";
 
 type EntityHeaderProps = {
   title: string;
@@ -51,11 +51,11 @@ export const EntityHeader = ({
   return (
     <div className="flex flex-row items-center justify-between gap-x-4">
       <div className="flex flex-col">
-        <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-foreground">{title}</h1>
+        <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-foreground">
+          {title}
+        </h1>
         {description && (
-          <p className="mt-1 text-sm text-muted-foreground/90">
-            {description}
-          </p>
+          <p className="mt-1 text-sm text-muted-foreground/90">{description}</p>
         )}
       </div>
       {onNew && !newButtonHref && (
@@ -201,8 +201,14 @@ export const EmptyView = ({ message, onNew }: EmptyViewProps) => {
           <PackageOpenIcon className="size-6" />
         </EmptyMedia>
       </EmptyHeader>
-      <EmptyTitle className="text-xl font-semibold tracking-tight">No items</EmptyTitle>
-      {!!message && <EmptyDescription className="text-muted-foreground/80 mt-1">{message}</EmptyDescription>}
+      <EmptyTitle className="text-xl font-semibold tracking-tight">
+        No items
+      </EmptyTitle>
+      {!!message && (
+        <EmptyDescription className="text-muted-foreground/80 mt-1">
+          {message}
+        </EmptyDescription>
+      )}
       {!!onNew && (
         <EmptyContent className="mt-6">
           <Button onClick={onNew}>Add item</Button>

@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Play, Settings } from "lucide-react";
+import { Play } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
@@ -27,8 +27,8 @@ export function HeroSection() {
       {/* Content */}
       <div className="relative z-10 flex flex-col items-center w-full pt-10 md:pt-16 px-4">
         {/* Badge */}
-        <motion.div 
-          {...fadeUp(0, 10, 0.5)} 
+        <motion.div
+          {...fadeUp(0, 10, 0.5)}
           className="inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-white/10 backdrop-blur-md px-4 py-1.5 text-sm text-foreground font-body mb-8"
         >
           <div className="h-1.5 w-1.5 rounded-full bg-foreground/50" />
@@ -40,7 +40,8 @@ export function HeroSection() {
           {...fadeUp(0.1, 16, 0.6)}
           className="text-center font-display text-5xl md:text-7xl lg:text-[5.8rem] leading-[0.88] tracking-[-0.04em] text-foreground max-w-4xl"
         >
-          Automate Your Work <br className="hidden md:block" /> with Multi Agent Catalyst
+          Automate Your Work <br className="hidden md:block" /> with Multi Agent
+          Catalyst
         </motion.h1>
 
         {/* Subheadline */}
@@ -48,12 +49,20 @@ export function HeroSection() {
           {...fadeUp(0.2, 16, 0.6)}
           className="mt-8 text-center text-base md:text-lg text-foreground/80 max-w-[650px] leading-relaxed font-body"
         >
-          Otogent is the infrastructure for multi-agent systems. Connect your favorite models, build complex workflows in minutes, and deploy with confidence — all from one unified interface.
+          Otogent is the infrastructure for multi-agent systems. Connect your
+          favorite models, build complex workflows in minutes, and deploy with
+          confidence — all from one unified interface.
         </motion.p>
 
         {/* CTA Buttons */}
-        <motion.div {...fadeUp(0.3, 16, 0.6)} className="mt-10 flex items-center gap-5">
-          <Button asChild className="rounded-full px-8 py-7 text-base font-bold bg-primary text-primary-foreground hover:opacity-90 transition-all shadow-lg">
+        <motion.div
+          {...fadeUp(0.3, 16, 0.6)}
+          className="mt-10 flex items-center gap-5"
+        >
+          <Button
+            asChild
+            className="rounded-full px-8 py-7 text-base font-bold bg-primary text-primary-foreground hover:opacity-90 transition-all shadow-lg"
+          >
             <Link href="/signup">Start Building — It's Free</Link>
           </Button>
           <Button
@@ -67,7 +76,6 @@ export function HeroSection() {
             </a>
           </Button>
         </motion.div>
-
       </div>
     </section>
   );

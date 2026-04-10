@@ -1,12 +1,12 @@
 "use client";
 
-import { useReactFlow, type Node, type NodeProps } from "@xyflow/react";
-import { memo, useState } from "react";
-import { BaseExecutionNode } from "../base-execution-node";
-import { InstagramDialog, InstagramFormValues } from "./dialog";
-import { useNodeStatus } from "../../hooks/use-node-status";
-import { INSTAGRAM_CHANNEL_NAME } from "@/inngest/channels/instagram";
+import { type Node, type NodeProps, useReactFlow } from "@xyflow/react";
 import { InstagramIcon } from "lucide-react";
+import { memo, useState } from "react";
+import { INSTAGRAM_CHANNEL_NAME } from "@/inngest/channels/instagram";
+import { useNodeStatus } from "../../hooks/use-node-status";
+import { BaseExecutionNode } from "../base-execution-node";
+import { InstagramDialog, type InstagramFormValues } from "./dialog";
 
 type InstagramNodeData = {
   caption?: string;
@@ -60,7 +60,11 @@ export const InstagramNode = memo((props: NodeProps<InstagramNodeType>) => {
         icon={InstagramIcon}
         name="Instagram"
         status={nodeStatus}
-        description={props.data?.caption ? `Caption: ${props.data.caption.slice(0, 30)}...` : "Not configured"}
+        description={
+          props.data?.caption
+            ? `Caption: ${props.data.caption.slice(0, 30)}...`
+            : "Not configured"
+        }
         onSettings={handleOpenSettings}
         onDoubleClick={handleOpenSettings}
       />
