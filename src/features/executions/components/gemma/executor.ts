@@ -117,18 +117,20 @@ export const gemmaExecutor: NodeExecutor<GemmaData> = async ({
   });
 
   try {
-    const result = await step.ai.wrap("gemma-generate-text", generateText, {
-      model: google(data.model),
-      system: systemPrompt,
-      prompt: userPrompt,
-      experimental_telemetry: {
-        isEnabled: true,
-        recordInputs: true,
-        recordOutputs: true,
-      },
-    });
+    const text = await step.run("gemma-generate-text", async () => {
+      const result = await generateText({
+        model: google(data.model),
+        system: systemPrompt,
+        prompt: userPrompt,
+        experimental_telemetry: {
+          isEnabled: true,
+          recordInputs: true,
+          recordOutputs: true,
+        },
+      });
 
-    const text = result.text ?? "";
+      return result.text;
+    });
 
     await publish(
       gemmaChannel().status({

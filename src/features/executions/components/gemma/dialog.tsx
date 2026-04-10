@@ -72,7 +72,7 @@ export const GemmaDialog = ({
     defaultValues: {
       variableName: defaultValues.variableName || "",
       credentialId: defaultValues.credentialId || "",
-      model: defaultValues.model || "gemma-3-12b-it",
+      model: defaultValues.model || "gemma-2-27b-it",
       systemPrompt: defaultValues.systemPrompt || "",
       userPrompt: defaultValues.userPrompt || "",
     },
@@ -83,7 +83,7 @@ export const GemmaDialog = ({
       form.reset({
         variableName: defaultValues.variableName || "",
         credentialId: defaultValues.credentialId || "",
-        model: defaultValues.model || "gemma-3-12b-it",
+        model: defaultValues.model || "gemma-2-27b-it",
         systemPrompt: defaultValues.systemPrompt || "",
         userPrompt: defaultValues.userPrompt || "",
       });
@@ -184,18 +184,24 @@ export const GemmaDialog = ({
                     </FormControl>
                     <SelectContent>
                       <SelectItem value="gemma-3-4b-it">
-                        Gemma 3 (4B) — Fastest
+                        Gemma 3 (4B) — Fast
                       </SelectItem>
                       <SelectItem value="gemma-3-12b-it">
                         Gemma 3 (12B) — Balanced
                       </SelectItem>
                       <SelectItem value="gemma-3-27b-it">
-                        Gemma 3 (27B) — Best Quality
+                        Gemma 3 (27B) — High Quality
+                      </SelectItem>
+                      <SelectItem value="gemma-2-9b-it">
+                        Gemma 2 (9B) — Reliable
+                      </SelectItem>
+                      <SelectItem value="gemma-2-27b-it">
+                        Gemma 2 (27B) — Most Common
                       </SelectItem>
                     </SelectContent>
                   </Select>
                   <FormDescription>
-                    Select a Gemma 3 model available via the Gemini API. Larger
+                    Select a Gemma model available via the Gemini API. Larger
                     models are more capable but slower.
                   </FormDescription>
                   <FormMessage />
