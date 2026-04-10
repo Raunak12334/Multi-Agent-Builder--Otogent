@@ -151,8 +151,10 @@ export const buildCompiledWorkflowGraph = (params: {
 
   for (const [nodeId, connections] of outgoingConnections.entries()) {
     const usesConditionalRouting =
-      connections.some((connection) => connection.fromOutput !== "main") ||
-      new Set(connections.map((connection) => connection.fromOutput)).size > 1;
+      connections.length > 1 &&
+      (connections.some((connection) => connection.fromOutput !== "main") ||
+        new Set(connections.map((connection) => connection.fromOutput)).size >
+          1);
 
     if (!usesConditionalRouting) {
       for (const connection of connections) {
