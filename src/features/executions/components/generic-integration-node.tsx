@@ -2,7 +2,7 @@
 
 import { useReactFlow, type Node, type NodeProps } from "@xyflow/react";
 import { memo } from "react";
-import { BaseExecutionNode } from "../base-execution-node";
+import { BaseExecutionNode } from "./base-execution-node";
 
 interface Props extends NodeProps<Node> {
   title: string;
