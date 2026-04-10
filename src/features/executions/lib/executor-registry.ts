@@ -35,7 +35,7 @@ import { hubspotExecutor } from "../components/hubspot/executor";
 import { shopifyExecutor } from "../components/shopify/executor";
 import type { NodeExecutor } from "../types";
 
-export const executorRegistry: Record<NodeType, NodeExecutor> = {
+export const executorRegistry: Record<NodeType, NodeExecutor<any>> = {
   [NodeType.INITIAL]: manualTriggerExecutor,
   [NodeType.MANUAL_TRIGGER]: manualTriggerExecutor,
   [NodeType.WEBHOOK_TRIGGER]: webhookTriggerExecutor,
@@ -73,7 +73,7 @@ export const executorRegistry: Record<NodeType, NodeExecutor> = {
   [NodeType.SHOPIFY]: shopifyExecutor,
 };
 
-export const getExecutor = (type: NodeType): NodeExecutor => {
+export const getExecutor = (type: NodeType): NodeExecutor<any> => {
   const executor = executorRegistry[type];
   if (!executor) {
     throw new Error(`No executor found for node type: ${type}`);
