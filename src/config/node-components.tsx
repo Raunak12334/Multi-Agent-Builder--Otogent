@@ -57,22 +57,14 @@ export const nodeComponents = {
   [NodeType.INSTAGRAM]: InstagramNode,
   [NodeType.TELEGRAM]: TelegramNode,
   [NodeType.GOOGLE_SHEETS]: (props: any) => (
-    <GenericIntegrationNode
-      {...props}
-      title="Google Sheets"
-      icon="/logos/googlesheets.svg"
-    />
+    <GenericIntegrationNode {...props} title="Google Sheets" />
   ),
   [NodeType.EMAIL_SEND]: EmailSendNode,
   [NodeType.EMAIL_PARSER]: (props: any) => (
     <GenericIntegrationNode {...props} title="Email Parser" />
   ),
   [NodeType.SCHEDULE]: (props: any) => (
-    <GenericIntegrationNode
-      {...props}
-      title="Schedule"
-      icon="/logos/google.svg"
-    />
+    <GenericIntegrationNode {...props} title="Schedule" />
   ),
   [NodeType.DB_QUERY]: (props: any) => (
     <GenericIntegrationNode {...props} title="DB Query" />
@@ -81,18 +73,10 @@ export const nodeComponents = {
     <GenericIntegrationNode {...props} title="Twilio SMS" />
   ),
   [NodeType.HUBSPOT]: (props: any) => (
-    <GenericIntegrationNode
-      {...props}
-      title="HubSpot"
-      icon="/logos/hubspot.svg"
-    />
+    <GenericIntegrationNode {...props} title="HubSpot" />
   ),
   [NodeType.SHOPIFY]: (props: any) => (
-    <GenericIntegrationNode
-      {...props}
-      title="Shopify"
-      icon="/logos/shopify.svg"
-    />
+    <GenericIntegrationNode {...props} title="Shopify" />
   ),
   [NodeType.FILE_STORAGE]: (props: any) => (
     <GenericIntegrationNode {...props} title="File Storage" />

@@ -1,4 +1,6 @@
-import { NodeType } from "@prisma/client";
+const fs = require('fs');
+
+const fileContent = `import { NodeType } from "@prisma/client";
 import {
   MousePointerClickIcon,
   WebhookIcon,
@@ -708,3 +710,6 @@ export const getNodeIconByGroup = (group: NodeCatalogGroupId) => {
     case "communication": return SendIcon;
   }
 };
+\`;
+
+fs.writeFileSync('src/config/node-catalog.ts', fileContent);
