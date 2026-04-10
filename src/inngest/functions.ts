@@ -21,6 +21,12 @@ import { instagramChannel } from "./channels/instagram";
 import { linkedinChannel } from "./channels/linkedin";
 import { telegramChannel } from "./channels/telegram";
 import { xChannel } from "./channels/x";
+import { googleSheetsChannel } from "./channels/google-sheets";
+import { emailChannel } from "./channels/email";
+import { dbQueryChannel } from "./channels/db-query";
+import { twilioSmsChannel } from "./channels/twilio-sms";
+import { hubspotChannel } from "./channels/hubspot";
+import { shopifyChannel } from "./channels/shopify";
 import { stripeTriggerChannel } from "./channels/stripe-trigger";
 import { webhookTriggerChannel } from "./channels/webhook-trigger";
 import { inngest } from "./client";
@@ -207,6 +213,12 @@ export const executeWorkflow = inngest.createFunction(
       linkedinChannel(),
       telegramChannel(),
       xChannel(),
+      googleSheetsChannel(),
+      emailChannel(),
+      dbQueryChannel(),
+      twilioSmsChannel(),
+      hubspotChannel(),
+      shopifyChannel(),
     ],
   },
   async ({ event, step, publish }) => {

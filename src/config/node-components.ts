@@ -25,7 +25,8 @@ import { TextTemplateNode } from "@/features/executions/components/text-template
 import { GoogleFormTrigger } from "@/features/triggers/components/google-form-trigger/node";
 import { ManualTriggerNode } from "@/features/triggers/components/manual-trigger/node";
 import { StripeTriggerNode } from "@/features/triggers/components/stripe-trigger/node";
-import { WebhookTriggerNode } from "@/features/triggers/components/webhook-trigger/node";
+import { EmailSendNode } from "@/features/executions/components/email-send/node";
+import { GenericIntegrationNode } from "@/features/executions/components/generic-integration-node";
 
 export const nodeComponents = {
   [NodeType.INITIAL]: InitialNode,
@@ -54,6 +55,15 @@ export const nodeComponents = {
   [NodeType.LINKEDIN]: LinkedinNode,
   [NodeType.INSTAGRAM]: InstagramNode,
   [NodeType.TELEGRAM]: TelegramNode,
+  [NodeType.GOOGLE_SHEETS]: (props: any) => <GenericIntegrationNode {...props} title="Google Sheets" icon="/logos/googlesheets.svg" />,
+  [NodeType.EMAIL_SEND]: EmailSendNode,
+  [NodeType.EMAIL_PARSER]: (props: any) => <GenericIntegrationNode {...props} title="Email Parser" />,
+  [NodeType.SCHEDULE]: (props: any) => <GenericIntegrationNode {...props} title="Schedule" icon="/logos/google.svg" />,
+  [NodeType.DB_QUERY]: (props: any) => <GenericIntegrationNode {...props} title="DB Query" />,
+  [NodeType.TWILIO_SMS]: (props: any) => <GenericIntegrationNode {...props} title="Twilio SMS" />,
+  [NodeType.HUBSPOT]: (props: any) => <GenericIntegrationNode {...props} title="HubSpot" icon="/logos/hubspot.svg" />,
+  [NodeType.SHOPIFY]: (props: any) => <GenericIntegrationNode {...props} title="Shopify" icon="/logos/shopify.svg" />,
+  [NodeType.FILE_STORAGE]: (props: any) => <GenericIntegrationNode {...props} title="File Storage" />,
 } as const satisfies NodeTypes;
 
 export type RegisteredNodeType = keyof typeof nodeComponents;

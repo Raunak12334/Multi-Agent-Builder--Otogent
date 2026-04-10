@@ -24,6 +24,15 @@ import { xExecutor } from "../components/x/executor";
 import { linkedinExecutor } from "../components/linkedin/executor";
 import { instagramExecutor } from "../components/instagram/executor";
 import { telegramExecutor } from "../components/telegram/executor";
+import { googleSheetsExecutor } from "../components/google-sheets/executor";
+import { emailSendExecutor } from "../components/email-send/executor";
+import { dbQueryExecutor } from "../components/db-query/executor";
+import { twilioSmsExecutor } from "../components/twilio-sms/executor";
+import { emailParserExecutor } from "../components/email-parser/executor";
+import { scheduleExecutor } from "../components/schedule/executor";
+import { fileStorageExecutor } from "../components/file-storage/executor";
+import { hubspotExecutor } from "../components/hubspot/executor";
+import { shopifyExecutor } from "../components/shopify/executor";
 import type { NodeExecutor } from "../types";
 
 export const executorRegistry: Record<NodeType, NodeExecutor> = {
@@ -53,6 +62,15 @@ export const executorRegistry: Record<NodeType, NodeExecutor> = {
   [NodeType.LINKEDIN]: linkedinExecutor,
   [NodeType.INSTAGRAM]: instagramExecutor,
   [NodeType.TELEGRAM]: telegramExecutor,
+  [NodeType.GOOGLE_SHEETS]: googleSheetsExecutor,
+  [NodeType.EMAIL_SEND]: emailSendExecutor,
+  [NodeType.DB_QUERY]: dbQueryExecutor,
+  [NodeType.TWILIO_SMS]: twilioSmsExecutor,
+  [NodeType.EMAIL_PARSER]: emailParserExecutor,
+  [NodeType.SCHEDULE]: scheduleExecutor,
+  [NodeType.FILE_STORAGE]: fileStorageExecutor,
+  [NodeType.HUBSPOT]: hubspotExecutor,
+  [NodeType.SHOPIFY]: shopifyExecutor,
 };
 
 export const getExecutor = (type: NodeType): NodeExecutor => {
