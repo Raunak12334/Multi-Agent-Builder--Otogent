@@ -67,6 +67,15 @@ const selectNextConnections = (
   context: Record<string, unknown>,
   nodeId: string,
 ) => {
+  if (connections.length === 0) {
+    return [];
+  }
+
+  // If there's only one connection, always follow it unless it's explicitly conditional
+  if (connections.length === 1 && connections[0].fromOutput === "main") {
+    return connections;
+  }
+
   const usesConditionalRouting =
     connections.some((connection) => connection.fromOutput !== "main") ||
     new Set(connections.map((connection) => connection.fromOutput)).size > 1;
@@ -76,18 +85,31 @@ const selectNextConnections = (
   }
 
   const selectedRoute = getSelectedRouteForNode(context, nodeId);
+  console.log(
+    `[selectNextConnections] Node ${nodeId} has ${connections.length} total connections. Routing to: ${selectedRoute}`,
+  );
+
   const matchingConnections = connections.filter(
     (connection) => connection.fromOutput === selectedRoute,
   );
 
   if (matchingConnections.length > 0) {
+    console.log(
+      `[selectNextConnections] Node ${nodeId} found ${matchingConnections.length} matching connections for route ${selectedRoute}`,
+    );
     return matchingConnections;
   }
 
-  return connections.filter(
+  const fallbackConnections = connections.filter(
     (connection) =>
       connection.fromOutput === "default" || connection.fromOutput === "main",
   );
+
+  console.log(
+    `[selectNextConnections] Node ${nodeId} using ${fallbackConnections.length} fallback connections (main/default)`,
+  );
+
+  return fallbackConnections;
 };
 
 const runLegacyWorkflow = async (params: {
@@ -138,10 +160,12 @@ const runLegacyWorkflow = async (params: {
   let context = params.initialData;
 
   for (const node of params.orderedNodes) {
+    console.log(`[runLegacyWorkflow] Checking node: ${node.id} (${node.type}). Active: ${activeNodes.has(node.id)}`);
     if (!activeNodes.has(node.id)) {
       continue;
     }
 
+    console.log(`[runLegacyWorkflow] Executing node: ${node.id} (${node.type})`);
     const executor = getExecutor(node.type as NodeType);
     context = await executor({
       data: (node.data as Record<string, unknown>) ?? {},
@@ -159,7 +183,9 @@ const runLegacyWorkflow = async (params: {
       node.id,
     );
 
+    console.log(`[runLegacyWorkflow] Node ${node.id} finished. Activating ${nextConnections.length} next nodes.`);
     for (const connection of nextConnections) {
+      console.log(`[runLegacyWorkflow]   Activating node: ${connection.toNodeId}`);
       activeNodes.add(connection.toNodeId);
     }
   }
