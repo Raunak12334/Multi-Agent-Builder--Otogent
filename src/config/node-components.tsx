@@ -25,6 +25,7 @@ import { TextTemplateNode } from "@/features/executions/components/text-template
 import { GoogleFormTrigger } from "@/features/triggers/components/google-form-trigger/node";
 import { ManualTriggerNode } from "@/features/triggers/components/manual-trigger/node";
 import { StripeTriggerNode } from "@/features/triggers/components/stripe-trigger/node";
+import { WebhookTriggerNode } from "@/features/triggers/components/webhook-trigger/node";
 import { EmailSendNode } from "@/features/executions/components/email-send/node";
 import { GenericIntegrationNode } from "@/features/executions/components/generic-integration-node";
 
