@@ -57,11 +57,11 @@ export const BaseExecutionNode = memo(
       >
         <NodeStatusIndicator status={status} variant="border">
           <BaseNode status={status} onDoubleClick={onDoubleClick}>
-            <BaseNodeContent className="flex flex-col items-center justify-center p-4 min-w-[80px]">
+            <BaseNodeContent className="flex flex-col items-center justify-center p-3 min-w-[80px]">
               {typeof Icon === "string" ? (
-                <Image src={Icon} alt={name} width={32} height={32} className="object-contain" />
+                <Image src={Icon} alt={name} width={24} height={24} className="object-contain" />
               ) : (
-                <Icon className="size-8 text-muted-foreground" />
+                <Icon className="size-6 text-muted-foreground" />
               )}
               {children}
               <BaseHandle

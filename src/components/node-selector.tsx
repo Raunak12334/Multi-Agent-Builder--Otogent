@@ -169,8 +169,8 @@ export function NodeSelector({
               <section key={group.id} className="space-y-3">
                 <div className="flex items-center justify-between gap-4">
                   <div className="flex items-start gap-3">
-                    <div className="flex size-12 items-center justify-center rounded-2xl border bg-card shadow-sm">
-                      <GroupIcon className="size-6 text-muted-foreground" />
+                    <div className="flex size-10 items-center justify-center rounded-2xl border bg-card shadow-sm">
+                      <GroupIcon className="size-5 text-muted-foreground" />
                     </div>
                     <div>
                       <h3 className="text-sm font-semibold tracking-tight">
@@ -197,17 +197,17 @@ export function NodeSelector({
                         className="group flex min-h-[120px] w-full items-start gap-4 rounded-3xl border bg-card px-4 py-4 text-left shadow-sm transition-all hover:-translate-y-0.5 hover:border-primary/30 hover:bg-accent/20 hover:shadow-md"
                         onClick={() => handleNodeSelect(item)}
                       >
-                        <div className="flex size-14 shrink-0 items-center justify-center rounded-2xl border bg-background shadow-sm transition-colors group-hover:border-primary/30">
+                        <div className="flex size-12 shrink-0 items-center justify-center rounded-2xl border bg-background shadow-sm transition-colors group-hover:border-primary/30">
                           {typeof Icon === "string" ? (
                             <Image
                               src={Icon}
                               alt={item.label}
-                              width={32}
-                              height={32}
-                              className="size-8 object-contain rounded-sm"
+                              width={24}
+                              height={24}
+                              className="size-6 object-contain rounded-sm"
                             />
                           ) : (
-                            <Icon className="size-8 text-muted-foreground" />
+                            <Icon className="size-6 text-muted-foreground" />
                           )}
                         </div>
 

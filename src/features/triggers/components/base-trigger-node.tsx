@@ -65,11 +65,11 @@ export const BaseTriggerNode = memo(
             onDoubleClick={onDoubleClick}
             className="rounded-l-2xl relative group"
           >
-            <BaseNodeContent>
+            <BaseNodeContent className="flex flex-col items-center justify-center p-3">
               {typeof Icon === "string" ? (
-                <Image src={Icon} alt={name} width={16} height={16} />
+                <Image src={Icon} alt={name} width={24} height={24} />
               ) : (
-                <Icon className="size-4 text-muted-foreground" />
+                <Icon className="size-6 text-muted-foreground" />
               )}
               {children}
               <BaseHandle
