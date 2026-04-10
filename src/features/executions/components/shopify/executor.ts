@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { NonRetriableError } from "inngest";
 import type { NodeExecutor } from "@/features/executions/types";
+import { shopifyChannel } from "@/inngest/channels/shopify";
 
 const shopifySchema = z.object({
   variableName: z.string().min(1),
@@ -14,9 +15,18 @@ type ShopifyData = z.infer<typeof shopifySchema>;
 
 export const shopifyExecutor: NodeExecutor<ShopifyData> = async ({
   data,
+  nodeId,
   context,
   step,
+  publish,
 }) => {
+  await publish(
+    shopifyChannel().status({
+      nodeId,
+      status: "loading",
+    }),
+  );
+
   const validated = shopifySchema.parse(data);
 
   try {
@@ -35,11 +45,24 @@ export const shopifyExecutor: NodeExecutor<ShopifyData> = async ({
       };
     });
 
+    await publish(
+      shopifyChannel().status({
+        nodeId,
+        status: "success",
+      }),
+    );
+
     return {
       ...context,
       [validated.variableName]: result,
     };
   } catch (error: any) {
+    await publish(
+      shopifyChannel().status({
+        nodeId,
+        status: "error",
+      }),
+    );
     throw new NonRetriableError(`Shopify Error: ${error.message}`);
   }
 };

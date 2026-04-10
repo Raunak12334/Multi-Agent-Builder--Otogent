@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { NonRetriableError } from "inngest";
 import type { NodeExecutor } from "@/features/executions/types";
+import { hubspotChannel } from "@/inngest/channels/hubspot";
 
 const hubspotSchema = z.object({
   variableName: z.string().min(1),
@@ -13,9 +14,18 @@ type HubspotData = z.infer<typeof hubspotSchema>;
 
 export const hubspotExecutor: NodeExecutor<HubspotData> = async ({
   data,
+  nodeId,
   context,
   step,
+  publish,
 }) => {
+  await publish(
+    hubspotChannel().status({
+      nodeId,
+      status: "loading",
+    }),
+  );
+
   const validated = hubspotSchema.parse(data);
 
   try {
@@ -34,11 +44,24 @@ export const hubspotExecutor: NodeExecutor<HubspotData> = async ({
       };
     });
 
+    await publish(
+      hubspotChannel().status({
+        nodeId,
+        status: "success",
+      }),
+    );
+
     return {
       ...context,
       [validated.variableName]: result,
     };
   } catch (error: any) {
+    await publish(
+      hubspotChannel().status({
+        nodeId,
+        status: "error",
+      }),
+    );
     throw new NonRetriableError(`HubSpot Error: ${error.message}`);
   }
 };

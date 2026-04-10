@@ -23,7 +23,7 @@ export const twilioSmsExecutor: NodeExecutor<TwilioSmsData> = async ({
   publish,
 }) => {
   await publish(
-    twilioSmsChannel.status({
+    twilioSmsChannel().status({
       nodeId,
       status: "loading",
     }),
@@ -47,11 +47,24 @@ export const twilioSmsExecutor: NodeExecutor<TwilioSmsData> = async ({
       };
     });
 
+    await publish(
+      twilioSmsChannel().status({
+        nodeId,
+        status: "success",
+      }),
+    );
+
     return {
       ...context,
       [validated.variableName]: result,
     };
   } catch (error: any) {
+    await publish(
+      twilioSmsChannel().status({
+        nodeId,
+        status: "error",
+      }),
+    );
     throw new NonRetriableError(`Twilio SMS Error: ${error.message}`);
   }
 };

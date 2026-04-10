@@ -26,7 +26,7 @@ export const emailSendExecutor: NodeExecutor<EmailSendData> = async ({
   publish,
 }) => {
   await publish(
-    emailChannel.status({
+    emailChannel().status({
       nodeId,
       status: "loading",
     }),
@@ -53,11 +53,24 @@ export const emailSendExecutor: NodeExecutor<EmailSendData> = async ({
       };
     });
 
+    await publish(
+      emailChannel().status({
+        nodeId,
+        status: "success",
+      }),
+    );
+
     return {
       ...context,
       [validated.variableName]: result,
     };
   } catch (error: any) {
+    await publish(
+      emailChannel().status({
+        nodeId,
+        status: "error",
+      }),
+    );
     throw new NonRetriableError(`Email Send Error: ${error.message}`);
   }
 };

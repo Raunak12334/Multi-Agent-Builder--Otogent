@@ -26,7 +26,7 @@ export const googleSheetsExecutor: NodeExecutor<GoogleSheetsData> = async ({
   publish,
 }) => {
   await publish(
-    googleSheetsChannel.status({
+    googleSheetsChannel().status({
       nodeId,
       status: "loading",
     }),
@@ -40,9 +40,20 @@ export const googleSheetsExecutor: NodeExecutor<GoogleSheetsData> = async ({
     });
   });
 
+  const credentialValue = credential.valueEncrypted || credential.value;
+  if (!credentialValue) {
+    await publish(
+      googleSheetsChannel().status({
+        nodeId,
+        status: "error",
+      }),
+    );
+    throw new NonRetriableError("Google Sheets node: Credential value is empty");
+  }
+
   const auth = new google.auth.OAuth2();
   auth.setCredentials({
-    access_token: decrypt(credential.valueEncrypted || credential.value),
+    access_token: decrypt(credentialValue),
   });
 
   const sheets = google.sheets({ version: "v4", auth });
@@ -77,11 +88,24 @@ export const googleSheetsExecutor: NodeExecutor<GoogleSheetsData> = async ({
       };
     });
 
+    await publish(
+      googleSheetsChannel().status({
+        nodeId,
+        status: "success",
+      }),
+    );
+
     return {
       ...context,
       [validated.variableName]: result,
     };
   } catch (error: any) {
+    await publish(
+      googleSheetsChannel().status({
+        nodeId,
+        status: "error",
+      }),
+    );
     throw new NonRetriableError(`Google Sheets Error: ${error.message}`);
   }
 };

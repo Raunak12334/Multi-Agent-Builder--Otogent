@@ -23,6 +23,9 @@ import { telegramChannel } from "./channels/telegram";
 import { xChannel } from "./channels/x";
 import { googleSheetsChannel } from "./channels/google-sheets";
 import { emailChannel } from "./channels/email";
+import { emailParserChannel } from "./channels/email-parser";
+import { scheduleChannel } from "./channels/schedule";
+import { fileStorageChannel } from "./channels/file-storage";
 import { dbQueryChannel } from "./channels/db-query";
 import { twilioSmsChannel } from "./channels/twilio-sms";
 import { hubspotChannel } from "./channels/hubspot";
@@ -215,6 +218,9 @@ export const executeWorkflow = inngest.createFunction(
       xChannel(),
       googleSheetsChannel(),
       emailChannel(),
+      emailParserChannel(),
+      scheduleChannel(),
+      fileStorageChannel(),
       dbQueryChannel(),
       twilioSmsChannel(),
       hubspotChannel(),

@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { NonRetriableError } from "inngest";
 import type { NodeExecutor } from "@/features/executions/types";
-import { PrismaClient } from "@prisma/client";
+import { dbQueryChannel } from "@/inngest/channels/db-query";
 
 const dbQuerySchema = z.object({
   variableName: z.string().min(1),
@@ -14,9 +14,18 @@ type DbQueryData = z.infer<typeof dbQuerySchema>;
 
 export const dbQueryExecutor: NodeExecutor<DbQueryData> = async ({
   data,
+  nodeId,
   context,
   step,
+  publish,
 }) => {
+  await publish(
+    dbQueryChannel().status({
+      nodeId,
+      status: "loading",
+    }),
+  );
+
   const validated = dbQuerySchema.parse(data);
 
   try {
@@ -37,11 +46,24 @@ export const dbQueryExecutor: NodeExecutor<DbQueryData> = async ({
       };
     });
 
+    await publish(
+      dbQueryChannel().status({
+        nodeId,
+        status: "success",
+      }),
+    );
+
     return {
       ...context,
       [validated.variableName]: result,
     };
   } catch (error: any) {
+    await publish(
+      dbQueryChannel().status({
+        nodeId,
+        status: "error",
+      }),
+    );
     throw new NonRetriableError(`Database Query Error: ${error.message}`);
   }
 };
