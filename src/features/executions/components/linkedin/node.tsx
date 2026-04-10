@@ -14,6 +14,8 @@ type LinkedinNodeData = {
 
 type LinkedinNodeType = Node<LinkedinNodeData>;
 
+import { fetchLinkedinRealtimeToken } from "../../actions";
+
 export const LinkedinNode = memo((props: NodeProps<LinkedinNodeType>) => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const { setNodes } = useReactFlow();
@@ -22,6 +24,7 @@ export const LinkedinNode = memo((props: NodeProps<LinkedinNodeType>) => {
     nodeId: props.id,
     channel: LINKEDIN_CHANNEL_NAME,
     topic: "status",
+    refreshToken: fetchLinkedinRealtimeToken,
   });
 
   const handleOpenSettings = () => setDialogOpen(true);
@@ -54,7 +57,7 @@ export const LinkedinNode = memo((props: NodeProps<LinkedinNodeType>) => {
       <BaseExecutionNode
         {...props}
         id={props.id}
-        icon={<LinkedinIcon className="size-5 text-blue-700" />}
+        icon={LinkedinIcon}
         name="LinkedIn"
         status={nodeStatus}
         description={props.data?.content ? `Post: ${props.data.content.slice(0, 30)}...` : "Not configured"}

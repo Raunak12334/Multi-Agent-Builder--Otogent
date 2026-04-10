@@ -8,7 +8,7 @@ const shopifySchema = z.object({
   shopUrl: z.string().min(1),
   accessToken: z.string().min(1),
   action: z.enum(["get_order", "create_product", "update_inventory"]),
-  data: z.record(z.any()).optional(),
+  data: z.record(z.string(), z.any()).optional(),
 });
 
 type ShopifyData = z.infer<typeof shopifySchema>;

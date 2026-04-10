@@ -14,6 +14,8 @@ type InstagramNodeData = {
 
 type InstagramNodeType = Node<InstagramNodeData>;
 
+import { fetchInstagramRealtimeToken } from "../../actions";
+
 export const InstagramNode = memo((props: NodeProps<InstagramNodeType>) => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const { setNodes } = useReactFlow();
@@ -22,6 +24,7 @@ export const InstagramNode = memo((props: NodeProps<InstagramNodeType>) => {
     nodeId: props.id,
     channel: INSTAGRAM_CHANNEL_NAME,
     topic: "status",
+    refreshToken: fetchInstagramRealtimeToken,
   });
 
   const handleOpenSettings = () => setDialogOpen(true);
@@ -54,7 +57,7 @@ export const InstagramNode = memo((props: NodeProps<InstagramNodeType>) => {
       <BaseExecutionNode
         {...props}
         id={props.id}
-        icon={<InstagramIcon className="size-5 text-pink-600" />}
+        icon={InstagramIcon}
         name="Instagram"
         status={nodeStatus}
         description={props.data?.caption ? `Caption: ${props.data.caption.slice(0, 30)}...` : "Not configured"}

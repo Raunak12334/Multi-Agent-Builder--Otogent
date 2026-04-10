@@ -14,6 +14,8 @@ type XNodeData = {
 
 type XNodeType = Node<XNodeData>;
 
+import { fetchXRealtimeToken } from "../../actions";
+
 export const XNode = memo((props: NodeProps<XNodeType>) => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const { setNodes } = useReactFlow();
@@ -22,6 +24,7 @@ export const XNode = memo((props: NodeProps<XNodeType>) => {
     nodeId: props.id,
     channel: X_CHANNEL_NAME,
     topic: "status",
+    refreshToken: fetchXRealtimeToken,
   });
 
   const handleOpenSettings = () => setDialogOpen(true);
@@ -59,7 +62,7 @@ export const XNode = memo((props: NodeProps<XNodeType>) => {
       <BaseExecutionNode
         {...props}
         id={props.id}
-        icon={<TwitterIcon className="size-5 text-sky-500" />}
+        icon={TwitterIcon}
         name="X (Twitter)"
         status={nodeStatus}
         description={description}

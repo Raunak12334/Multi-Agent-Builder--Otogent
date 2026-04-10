@@ -7,7 +7,7 @@ const hubspotSchema = z.object({
   variableName: z.string().min(1),
   accessToken: z.string().min(1),
   action: z.enum(["create_contact", "update_deal", "get_company"]),
-  properties: z.record(z.any()),
+  properties: z.record(z.string(), z.any()),
 });
 
 type HubspotData = z.infer<typeof hubspotSchema>;

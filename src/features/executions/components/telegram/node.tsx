@@ -14,6 +14,8 @@ type TelegramNodeData = {
 
 type TelegramNodeType = Node<TelegramNodeData>;
 
+import { fetchTelegramRealtimeToken } from "../../actions";
+
 export const TelegramNode = memo((props: NodeProps<TelegramNodeType>) => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const { setNodes } = useReactFlow();
@@ -22,6 +24,7 @@ export const TelegramNode = memo((props: NodeProps<TelegramNodeType>) => {
     nodeId: props.id,
     channel: TELEGRAM_CHANNEL_NAME,
     topic: "status",
+    refreshToken: fetchTelegramRealtimeToken,
   });
 
   const handleOpenSettings = () => setDialogOpen(true);
@@ -54,7 +57,7 @@ export const TelegramNode = memo((props: NodeProps<TelegramNodeType>) => {
       <BaseExecutionNode
         {...props}
         id={props.id}
-        icon={<SendIcon className="size-5 text-blue-400" />}
+        icon={SendIcon}
         name="Telegram"
         status={nodeStatus}
         description={props.data?.text ? `Message: ${props.data.text.slice(0, 30)}...` : "Not configured"}
