@@ -117,7 +117,7 @@ export const gemmaExecutor: NodeExecutor<GemmaData> = async ({
   });
 
   try {
-    const { steps } = await step.ai.wrap("gemma-generate-text", generateText, {
+    const result = await step.ai.wrap("gemma-generate-text", generateText, {
       model: google(data.model),
       system: systemPrompt,
       prompt: userPrompt,
@@ -128,8 +128,7 @@ export const gemmaExecutor: NodeExecutor<GemmaData> = async ({
       },
     });
 
-    const text =
-      steps[0].content[0].type === "text" ? steps[0].content[0].text : "";
+    const text = result.text ?? "";
 
     await publish(
       gemmaChannel().status({
