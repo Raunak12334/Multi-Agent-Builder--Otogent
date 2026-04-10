@@ -119,7 +119,7 @@ export const gemmaExecutor: NodeExecutor<GemmaData> = async ({
   try {
     const text = await step.run("gemma-generate-text", async () => {
       const result = await generateText({
-        model: google(data.model),
+        model: google(data.model || "gemma-2-27b-it"),
         system: systemPrompt,
         prompt: userPrompt,
         experimental_telemetry: {
