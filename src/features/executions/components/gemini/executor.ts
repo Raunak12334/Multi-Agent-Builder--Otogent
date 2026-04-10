@@ -90,24 +90,36 @@ export const geminiExecutor: NodeExecutor<GeminiData> = async ({
     throw new NonRetriableError("Gemini node: Credential not found");
   }
 
+  const credentialValue = credential.valueEncrypted || credential.value;
+  if (!credentialValue) {
+    await publish(
+      geminiChannel().status({
+        nodeId,
+        status: "error",
+      }),
+    );
+    throw new NonRetriableError("Gemini node: Credential value is empty");
+  }
+
   const google = createGoogleGenerativeAI({
-    apiKey: decrypt(credential.value),
+    apiKey: decrypt(credentialValue),
   });
 
   try {
-    const { steps } = await step.ai.wrap("gemini-generate-text", generateText, {
-      model: google("gemini-2.0-flash"),
-      system: systemPrompt,
-      prompt: userPrompt,
-      experimental_telemetry: {
-        isEnabled: true,
-        recordInputs: true,
-        recordOutputs: true,
-      },
-    });
+    const text = await step.run("gemini-generate-text", async () => {
+      const { steps } = await generateText({
+        model: google("gemini-2.0-flash"),
+        system: systemPrompt,
+        prompt: userPrompt,
+        experimental_telemetry: {
+          isEnabled: true,
+          recordInputs: true,
+          recordOutputs: true,
+        },
+      });
 
-    const text =
-      steps[0].content[0].type === "text" ? steps[0].content[0].text : "";
+      return steps[0].content[0].type === "text" ? steps[0].content[0].text : "";
+    });
 
     await publish(
       geminiChannel().status({

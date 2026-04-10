@@ -101,8 +101,19 @@ export const huggingFaceExecutor: NodeExecutor<HuggingFaceData> = async ({
     throw new NonRetriableError("Hugging Face node: Credential not found");
   }
 
+  const credentialValue = credential.valueEncrypted || credential.value;
+  if (!credentialValue) {
+    await publish(
+      huggingFaceChannel().status({
+        nodeId,
+        status: "error",
+      }),
+    );
+    throw new NonRetriableError("Hugging Face node: Credential value is empty");
+  }
+
   const huggingFace = createOpenAI({
-    apiKey: decrypt(credential.value),
+    apiKey: decrypt(credentialValue),
     baseURL: "https://router.huggingface.co/v1",
   });
 

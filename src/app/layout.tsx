@@ -1,5 +1,6 @@
 import { Provider } from "jotai";
 import type { Metadata } from "next";
+import Script from "next/script";
 import {
   Geist,
   Geist_Mono,
@@ -33,15 +34,86 @@ const landingSerif = Quattrocento({
   subsets: ["latin"],
 });
 
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+};
+
 export const metadata: Metadata = {
-  title: "Otogent — Infrastucture for Multi Agent System",
-  description: "Otogent — Build, deploy, and manage AI agent workflows in minutes. Connect models from OpenAI, Anthropic, and Gemini. No infrastructure required.",
-  openGraph: {
-    title: "Otogent — Multi Agent System",
-    description: "Design and deploy multi-agent AI workflows with Otogent. Connect OpenAI, Anthropic, and Gemini models in a visual canvas. Built for speed. Built for scale.",
+  metadataBase: new URL("https://otogent.com"),
+
+  title: {
+    default: "Otogent – AI Agent Platform & Workflow Builder (All-in-One AI Tools)",
+    template: "%s | Otogent AI Platform",
   },
+
+  description:
+    "Otogent is an all-in-one AI agent platform to automate workflows, reduce manual work, and scale AI operations using OpenAI, Anthropic, and Gemini.",
+
+  applicationName: "Otogent",
+  authors: [{ name: "Otogent" }],
+  creator: "Otogent",
+  publisher: "Otogent",
+  category: "technology",
+  referrer: "origin-when-cross-origin",
+  manifest: "/site.webmanifest",
+  themeColor: "#000000",
+
+  keywords: [
+    "AI agent platform",
+    "multi agent system",
+    "AI workflow builder",
+    "OpenAI integration",
+    "Anthropic AI",
+    "Gemini AI",
+    "AI automation platform",
+  ],
+
+  alternates: {
+    canonical: "/",
+    languages: {
+      "en": "https://otogent.com",
+      "x-default": "https://otogent.com",
+    },
+  },
+
+  openGraph: {
+    title: "Otogent – Multi-Agent AI Platform",
+    description:
+      "Build and deploy scalable AI agent workflows using Otogent. One platform. Infinite automation.",
+    url: "https://otogent.com",
+    siteName: "Otogent",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+      },
+    ],
+    type: "website",
+  },
+
+  twitter: {
+    card: "summary_large_image",
+    title: "Otogent AI Platform",
+    description:
+      "Create and scale AI agent workflows with ease using Otogent.",
+    images: ["/og-image.png"],
+  },
+
+  robots: {
+    index: true,
+    follow: true,
+  },
+
   icons: {
     icon: "/otogent-logo.png",
+    shortcut: "/otogent-logo.png",
+    apple: "/otogent-logo.png",
+  },
+
+  verification: {
+    google: "your-google-verification-code",
   },
 };
 
@@ -52,6 +124,39 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <link rel="preconnect" href="https://api.openai.com" />
+        <link rel="preconnect" href="https://api.anthropic.com" />
+        <Script
+          id="ld-json"
+          type="application/ld+json"
+          strategy="beforeInteractive"
+          dangerouslySetInnerHTML={{
+                __html: JSON.stringify({
+                  "@context": "https://schema.org",
+                  "@type": "SoftwareApplication",
+                  name: "Otogent",
+                  url: "https://otogent.com",
+                  applicationCategory: "AI Platform",
+                  operatingSystem: "Web",
+                  description:
+                    "All-in-one AI agent platform for building and managing multi-agent workflows to automate repetitive tasks.",
+                  offers: {
+                    "@type": "Offer",
+                    "price": "0",
+                    "priceCurrency": "USD"
+                  },
+                  featureList: [
+                    "Multi-agent workflow builder",
+                    "OpenAI integration",
+                    "Anthropic integration",
+                    "Gemini integration",
+                    "No-code AI automation"
+                  ]
+                }),
+          }}
+        />
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${landingSans.variable} ${landingSerif.variable} antialiased`}
         suppressHydrationWarning

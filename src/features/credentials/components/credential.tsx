@@ -79,7 +79,7 @@ interface CredentialFormProps {
     id?: string;
     name: string;
     type: CredentialType;
-    value: string;
+    value?: string | null;
   };
 }
 
@@ -93,7 +93,10 @@ export const CredentialForm = ({ initialData }: CredentialFormProps) => {
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
-    defaultValues: initialData || {
+    defaultValues: initialData ? {
+      ...initialData,
+      value: initialData.value || "",
+    } : {
       name: "",
       type: CredentialType.OPENAI,
       value: "",

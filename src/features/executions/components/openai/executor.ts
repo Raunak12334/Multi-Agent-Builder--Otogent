@@ -90,24 +90,36 @@ export const openAiExecutor: NodeExecutor<OpenAiData> = async ({
     throw new NonRetriableError("OpenAI node: Credential not found");
   }
 
+  const credentialValue = credential.valueEncrypted || credential.value;
+  if (!credentialValue) {
+    await publish(
+      openAiChannel().status({
+        nodeId,
+        status: "error",
+      }),
+    );
+    throw new NonRetriableError("OpenAI node: Credential value is empty");
+  }
+
   const openai = createOpenAI({
-    apiKey: decrypt(credential.value),
+    apiKey: decrypt(credentialValue),
   });
 
   try {
-    const { steps } = await step.ai.wrap("openai-generate-text", generateText, {
-      model: openai("gpt-4o-mini"),
-      system: systemPrompt,
-      prompt: userPrompt,
-      experimental_telemetry: {
-        isEnabled: true,
-        recordInputs: true,
-        recordOutputs: true,
-      },
-    });
+    const text = await step.run("openai-generate-text", async () => {
+      const { steps } = await generateText({
+        model: openai("gpt-4o-mini"),
+        system: systemPrompt,
+        prompt: userPrompt,
+        experimental_telemetry: {
+          isEnabled: true,
+          recordInputs: true,
+          recordOutputs: true,
+        },
+      });
 
-    const text =
-      steps[0].content[0].type === "text" ? steps[0].content[0].text : "";
+      return steps[0].content[0].type === "text" ? steps[0].content[0].text : "";
+    });
 
     await publish(
       openAiChannel().status({

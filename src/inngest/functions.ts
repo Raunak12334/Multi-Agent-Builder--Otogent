@@ -159,12 +159,27 @@ export const executeWorkflow = inngest.createFunction(
     id: "execute-workflow",
     retries: process.env.NODE_ENV === "production" ? 3 : 0,
     onFailure: async ({ event }) => {
+      const error = event.data.error;
+      const originalEvent = event.data.event;
+      
+      console.error(`Workflow execution failed for event ${originalEvent.id}:`, error.message);
+      
+      // Find execution by inngestEventId (non-unique index)
+      const execution = await prisma.execution.findFirst({
+        where: { inngestEventId: originalEvent.id },
+      });
+      
+      if (!execution) {
+        console.warn(`No execution found for inngestEventId: ${originalEvent.id}`);
+        return;
+      }
+      
       return prisma.execution.update({
-        where: { inngestEventId: event.data.event.id },
+        where: { id: execution.id },
         data: {
           status: ExecutionStatus.FAILED,
-          error: event.data.error.message,
-          errorStack: event.data.error.stack,
+          error: error.message,
+          errorStack: error.stack,
         },
       });
     },
@@ -197,6 +212,8 @@ export const executeWorkflow = inngest.createFunction(
       throw new NonRetriableError("Event ID or workflow ID is missing");
     }
 
+    console.log(`Starting workflow execution for workflowId: ${workflowId}, executionId: ${resumeExecutionId || 'new'}`);
+
     const execution = await step.run("create-execution", async () => {
       if (resumeExecutionId) {
         return prisma.execution.update({
@@ -223,7 +240,7 @@ export const executeWorkflow = inngest.createFunction(
       });
     });
 
-    const workflowDefinition = await step.run("prepare-workflow", async () => {
+    const { workflowDefinition, organizationId } = await step.run("prepare-workflow-context", async () => {
       const workflow = await prisma.workflow.findUniqueOrThrow({
         where: { id: workflowId },
         include: {
@@ -238,28 +255,20 @@ export const executeWorkflow = inngest.createFunction(
       );
 
       return {
-        nodes: orderedNodes.map((node) => ({
-          id: node.id,
-          type: node.type,
-          data: node.data,
-        })),
-        connections: workflow.connections.map((connection) => ({
-          fromNodeId: connection.fromNodeId,
-          toNodeId: connection.toNodeId,
-          fromOutput: connection.fromOutput,
-        })),
+        organizationId: workflow.organizationId,
+        workflowDefinition: {
+          nodes: orderedNodes.map((node) => ({
+            id: node.id,
+            type: node.type,
+            data: node.data,
+          })),
+          connections: workflow.connections.map((connection) => ({
+            fromNodeId: connection.fromNodeId,
+            toNodeId: connection.toNodeId,
+            fromOutput: connection.fromOutput,
+          })),
+        }
       };
-    });
-
-    const organizationId = await step.run("find-organization-id", async () => {
-      const workflow = await prisma.workflow.findUniqueOrThrow({
-        where: { id: workflowId },
-        select: {
-          organizationId: true,
-        },
-      });
-
-      return workflow.organizationId;
     });
 
     const graphResult = isLangGraphEnabled()
@@ -312,7 +321,7 @@ export const executeWorkflow = inngest.createFunction(
 
     await step.run("update-execution", async () => {
       return prisma.execution.update({
-        where: { inngestEventId, workflowId },
+        where: { id: execution.id },
         data: {
           status: ExecutionStatus.SUCCESS,
           completedAt: new Date(),

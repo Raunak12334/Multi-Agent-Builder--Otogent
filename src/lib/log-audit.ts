@@ -1,3 +1,5 @@
+import { Prisma } from "@prisma/client";
+
 import prisma from "@/lib/db";
 import { InputJsonValue } from "@prisma/client/runtime/library";
 
@@ -5,7 +7,7 @@ export async function logAudit(params: {
   userId?: string;
   organizationId?: string;
   action: string;
-  metadata?: Record<string, unknown>;
+  metadata?: Prisma.InputJsonObject;
 }) {
   const { userId, organizationId, action, metadata } = params;
   if (!organizationId && !userId) return;

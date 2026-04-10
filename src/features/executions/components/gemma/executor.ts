@@ -101,8 +101,19 @@ export const gemmaExecutor: NodeExecutor<GemmaData> = async ({
     throw new NonRetriableError("Gemma node: Credential not found");
   }
 
+  const credentialValue = credential.valueEncrypted || credential.value;
+  if (!credentialValue) {
+    await publish(
+      gemmaChannel().status({
+        nodeId,
+        status: "error",
+      }),
+    );
+    throw new NonRetriableError("Gemma node: Credential value is empty");
+  }
+
   const google = createGoogleGenerativeAI({
-    apiKey: decrypt(credential.value),
+    apiKey: decrypt(credentialValue),
   });
 
   try {

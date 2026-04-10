@@ -90,15 +90,24 @@ export const anthropicExecutor: NodeExecutor<AnthropicData> = async ({
     throw new NonRetriableError("Anthropic node: Credential not found");
   }
 
+  const credentialValue = credential.valueEncrypted || credential.value;
+  if (!credentialValue) {
+    await publish(
+      anthropicChannel().status({
+        nodeId,
+        status: "error",
+      }),
+    );
+    throw new NonRetriableError("Anthropic node: Credential value is empty");
+  }
+
   const anthropic = createAnthropic({
-    apiKey: decrypt(credential.value),
+    apiKey: decrypt(credentialValue),
   });
 
   try {
-    const { steps } = await step.ai.wrap(
-      "anthropic-generate-text",
-      generateText,
-      {
+    const text = await step.run("anthropic-generate-text", async () => {
+      const { steps } = await generateText({
         model: anthropic("claude-sonnet-4-5"),
         system: systemPrompt,
         prompt: userPrompt,
@@ -107,11 +116,10 @@ export const anthropicExecutor: NodeExecutor<AnthropicData> = async ({
           recordInputs: true,
           recordOutputs: true,
         },
-      },
-    );
+      });
 
-    const text =
-      steps[0].content[0].type === "text" ? steps[0].content[0].text : "";
+      return steps[0].content[0].type === "text" ? steps[0].content[0].text : "";
+    });
 
     await publish(
       anthropicChannel().status({
