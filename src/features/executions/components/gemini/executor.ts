@@ -17,6 +17,7 @@ Handlebars.registerHelper("json", (context) => {
 type GeminiData = {
   variableName?: string;
   credentialId?: string;
+  model?: string;
   systemPrompt?: string;
   userPrompt?: string;
 };
@@ -108,7 +109,7 @@ export const geminiExecutor: NodeExecutor<GeminiData> = async ({
   try {
     const text = await step.run("gemini-generate-text", async () => {
       const { steps } = await generateText({
-        model: google("gemini-2.0-flash"),
+        model: google(data.model || "gemini-1.5-flash"),
         system: systemPrompt,
         prompt: userPrompt,
         experimental_telemetry: {

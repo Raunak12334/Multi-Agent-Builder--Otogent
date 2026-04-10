@@ -44,6 +44,7 @@ const formSchema = z.object({
         "Variable name must start with a letter or underscore and container only letters, numbers, and underscores",
     }),
   credentialId: z.string().min(1, "Credential is required"),
+  model: z.string().min(1, "Model is required"),
   systemPrompt: z.string().optional(),
   userPrompt: z.string().min(1, "User prompt is required"),
 });
@@ -71,6 +72,7 @@ export const GeminiDialog = ({
     defaultValues: {
       variableName: defaultValues.variableName || "",
       credentialId: defaultValues.credentialId || "",
+      model: defaultValues.model || "gemini-1.5-flash",
       systemPrompt: defaultValues.systemPrompt || "",
       userPrompt: defaultValues.userPrompt || "",
     },
@@ -82,6 +84,7 @@ export const GeminiDialog = ({
       form.reset({
         variableName: defaultValues.variableName || "",
         credentialId: defaultValues.credentialId || "",
+        model: defaultValues.model || "gemini-1.5-flash",
         systemPrompt: defaultValues.systemPrompt || "",
         userPrompt: defaultValues.userPrompt || "",
       });
@@ -122,6 +125,38 @@ export const GeminiDialog = ({
                     Use this name to reference the result in other nodes:{" "}
                     {`{{${watchVariableName}.text}}`}
                   </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="model"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Gemini Model</FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select a model" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="gemini-1.5-flash">
+                        Gemini 1.5 Flash
+                      </SelectItem>
+                      <SelectItem value="gemini-1.5-pro">
+                        Gemini 1.5 Pro
+                      </SelectItem>
+                      <SelectItem value="gemini-2.0-flash">
+                        Gemini 2.0 Flash
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}
