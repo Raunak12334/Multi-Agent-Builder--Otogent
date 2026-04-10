@@ -20,6 +20,10 @@ import { routerExecutor } from "../components/router/executor";
 import { setVariableExecutor } from "../components/set-variable/executor";
 import { slackExecutor } from "../components/slack/executor";
 import { textTemplateExecutor } from "../components/text-template/executor";
+import { xExecutor } from "../components/x/executor";
+import { linkedinExecutor } from "../components/linkedin/executor";
+import { instagramExecutor } from "../components/instagram/executor";
+import { telegramExecutor } from "../components/telegram/executor";
 import type { NodeExecutor } from "../types";
 
 export const executorRegistry: Record<NodeType, NodeExecutor> = {
@@ -45,6 +49,10 @@ export const executorRegistry: Record<NodeType, NodeExecutor> = {
   [NodeType.HUGGINGFACE]: huggingFaceExecutor,
   [NodeType.DISCORD]: discordExecutor,
   [NodeType.SLACK]: slackExecutor,
+  [NodeType.X]: xExecutor,
+  [NodeType.LINKEDIN]: linkedinExecutor,
+  [NodeType.INSTAGRAM]: instagramExecutor,
+  [NodeType.TELEGRAM]: telegramExecutor,
 };
 
 export const getExecutor = (type: NodeType): NodeExecutor => {

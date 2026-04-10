@@ -107,8 +107,8 @@ export const anthropicExecutor: NodeExecutor<AnthropicData> = async ({
 
   try {
     const text = await step.run("anthropic-generate-text", async () => {
-      const { steps } = await generateText({
-        model: anthropic("claude-sonnet-4-5"),
+      const result = await generateText({
+        model: anthropic("claude-3-5-sonnet-latest"),
         system: systemPrompt,
         prompt: userPrompt,
         experimental_telemetry: {
@@ -118,7 +118,7 @@ export const anthropicExecutor: NodeExecutor<AnthropicData> = async ({
         },
       });
 
-      return steps[0].content[0].type === "text" ? steps[0].content[0].text : "";
+      return result.text;
     });
 
     await publish(

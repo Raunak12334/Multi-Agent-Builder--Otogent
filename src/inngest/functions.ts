@@ -17,6 +17,10 @@ import { huggingFaceChannel } from "./channels/huggingface";
 import { manualTriggerChannel } from "./channels/manual-trigger";
 import { openAiChannel } from "./channels/openai";
 import { slackChannel } from "./channels/slack";
+import { instagramChannel } from "./channels/instagram";
+import { linkedinChannel } from "./channels/linkedin";
+import { telegramChannel } from "./channels/telegram";
+import { xChannel } from "./channels/x";
 import { stripeTriggerChannel } from "./channels/stripe-trigger";
 import { webhookTriggerChannel } from "./channels/webhook-trigger";
 import { inngest } from "./client";
@@ -199,6 +203,10 @@ export const executeWorkflow = inngest.createFunction(
       anthropicChannel(),
       discordChannel(),
       slackChannel(),
+      instagramChannel(),
+      linkedinChannel(),
+      telegramChannel(),
+      xChannel(),
     ],
   },
   async ({ event, step, publish }) => {

@@ -17,6 +17,10 @@ import { OpenAiNode } from "@/features/executions/components/openai/node";
 import { RouterNode } from "@/features/executions/components/router/node";
 import { SetVariableNode } from "@/features/executions/components/set-variable/node";
 import { SlackNode } from "@/features/executions/components/slack/node";
+import { XNode } from "@/features/executions/components/x/node";
+import { LinkedinNode } from "@/features/executions/components/linkedin/node";
+import { InstagramNode } from "@/features/executions/components/instagram/node";
+import { TelegramNode } from "@/features/executions/components/telegram/node";
 import { TextTemplateNode } from "@/features/executions/components/text-template/node";
 import { GoogleFormTrigger } from "@/features/triggers/components/google-form-trigger/node";
 import { ManualTriggerNode } from "@/features/triggers/components/manual-trigger/node";
@@ -46,6 +50,10 @@ export const nodeComponents = {
   [NodeType.ANTHROPIC]: AnthropicNode,
   [NodeType.DISCORD]: DiscordNode,
   [NodeType.SLACK]: SlackNode,
+  [NodeType.X]: XNode,
+  [NodeType.LINKEDIN]: LinkedinNode,
+  [NodeType.INSTAGRAM]: InstagramNode,
+  [NodeType.TELEGRAM]: TelegramNode,
 } as const satisfies NodeTypes;
 
 export type RegisteredNodeType = keyof typeof nodeComponents;

@@ -60,7 +60,10 @@ export const Editor = ({ workflowId }: { workflowId: string }) => {
   );
 
   const hasManualTrigger = useMemo(() => {
-    return nodes.some((node) => node.type === NodeType.MANUAL_TRIGGER);
+    return nodes.some(
+      (node) =>
+        node.type === NodeType.MANUAL_TRIGGER || node.type === NodeType.INITIAL,
+    );
   }, [nodes]);
 
   return (

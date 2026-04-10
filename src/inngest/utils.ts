@@ -18,25 +18,11 @@ export const topologicalSort = (
     conn.toNodeId,
   ]);
 
-  // Add nodes with no connections as self-edges to ensure they're included
-  const connectedNodeIds = new Set<string>();
-  for (const conn of connections) {
-    connectedNodeIds.add(conn.fromNodeId);
-    connectedNodeIds.add(conn.toNodeId);
-  }
-
-  for (const node of nodes) {
-    if (!connectedNodeIds.has(node.id)) {
-      edges.push([node.id, node.id]);
-    }
-  }
-
-  // Perform topological sort
+  // Perform topological sort using the .array method to properly handle independent nodes
   let sortedNodeIds: string[];
   try {
-    sortedNodeIds = toposort(edges);
-    // Remove duplicates (from self-edges)
-    sortedNodeIds = [...new Set(sortedNodeIds)];
+    const nodeIds = nodes.map((n) => n.id);
+    sortedNodeIds = toposort.array(nodeIds, edges);
   } catch (error) {
     if (error instanceof Error && error.message.includes("Cyclic")) {
       throw new Error("Workflow contains a cycle");

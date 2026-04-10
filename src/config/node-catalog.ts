@@ -235,6 +235,38 @@ export const nodeCatalog: NodeCatalogItem[] = [
     group: "communication",
     keywords: ["discord", "message", "notify", "alert"],
   },
+  {
+    type: NodeType.X,
+    label: "X (Twitter)",
+    description: "Post a tweet to X.",
+    icon: MessageSquareShareIcon,
+    group: "communication",
+    keywords: ["twitter", "x", "post", "tweet", "social"],
+  },
+  {
+    type: NodeType.LINKEDIN,
+    label: "LinkedIn",
+    description: "Post an update to LinkedIn.",
+    icon: MessageSquareShareIcon,
+    group: "communication",
+    keywords: ["linkedin", "post", "update", "social", "professional"],
+  },
+  {
+    type: NodeType.INSTAGRAM,
+    label: "Instagram",
+    description: "Post a photo or update to Instagram.",
+    icon: MessageSquareShareIcon,
+    group: "communication",
+    keywords: ["instagram", "photo", "post", "social", "meta"],
+  },
+  {
+    type: NodeType.TELEGRAM,
+    label: "Telegram",
+    description: "Send a message via Telegram bot.",
+    icon: MessageSquareShareIcon,
+    group: "communication",
+    keywords: ["telegram", "bot", "message", "notify", "alert"],
+  },
 ];
 
 export const getNodeCatalogItem = (type: NodeType) =>

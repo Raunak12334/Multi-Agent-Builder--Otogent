@@ -107,7 +107,7 @@ export const openAiExecutor: NodeExecutor<OpenAiData> = async ({
 
   try {
     const text = await step.run("openai-generate-text", async () => {
-      const { steps } = await generateText({
+      const result = await generateText({
         model: openai("gpt-4o-mini"),
         system: systemPrompt,
         prompt: userPrompt,
@@ -118,7 +118,7 @@ export const openAiExecutor: NodeExecutor<OpenAiData> = async ({
         },
       });
 
-      return steps[0].content[0].type === "text" ? steps[0].content[0].text : "";
+      return result.text;
     });
 
     await publish(

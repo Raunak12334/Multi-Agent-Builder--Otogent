@@ -142,18 +142,18 @@ model Credential {
   id             String         @id @default(cuid())
   name           String
   value          String?
-  valueEncrypted String?
   type           CredentialType
-  lastUsedAt     DateTime?
-  expiresAt      DateTime?
-  rotationCount  Int            @default(0)
-  accessLevel    String?
-  lastRotatedAt  DateTime?
-  accessRoles    String[]
   createdAt      DateTime       @default(now())
   updatedAt      DateTime       @updatedAt
   deletedAt      DateTime?
   organizationId String
+  accessLevel    String?
+  expiresAt      DateTime?
+  lastUsedAt     DateTime?
+  rotationCount  Int            @default(0)
+  accessRoles    String[]
+  lastRotatedAt  DateTime?
+  valueEncrypted String?
   organization   Organization   @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   Node           Node[]
 
@@ -162,35 +162,35 @@ model Credential {
 }
 
 model Workflow {
-  id             String       @id @default(cuid())
+  id             String            @id @default(cuid())
   name           String
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime     @updatedAt
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
   deletedAt      DateTime?
   organizationId String
-  currentVersion Int          @default(1)
-  isLocked       Boolean      @default(false)
+  currentVersion Int               @default(1)
+  isLocked       Boolean           @default(false)
   connections    Connection[]
   executions     Execution[]
   nodes          Node[]
+  organization   Organization      @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   versions       WorkflowVersion[]
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
   @@index([organizationId, updatedAt])
   @@map("workflow")
 }
 
 model WorkflowVersion {
-  id          String    @id @default(cuid())
-  workflowId  String
-  version     Int
-  name        String
-  nodes       Json
-  connections Json
-  isActive    Boolean   @default(true)
+  id           String    @id @default(cuid())
+  workflowId   String
+  version      Int
+  name         String
+  nodes        Json
+  createdAt    DateTime  @default(now())
+  connections  Json
   deprecatedAt DateTime?
-  createdAt   DateTime  @default(now())
-  workflow    Workflow  @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+  isActive     Boolean   @default(true)
+  workflow     Workflow  @relation(fields: [workflowId], references: [id], onDelete: Cascade)
 
   @@unique([workflowId, version])
   @@index([workflowId])
@@ -198,24 +198,24 @@ model WorkflowVersion {
 }
 
 model Node {
-  id                String       @id @default(cuid())
+  id                String          @id @default(cuid())
   workflowId        String
   name              String
   type              NodeType
   position          Json
-  data              Json         @default("{}")
+  data              Json            @default("{}")
+  credentialId      String?
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+  deletedAt         DateTime?
   config            Json?
+  delayMs           Int?
   prompt            String?
   url               String?
-  delayMs           Int?
-  credentialId      String?
-  createdAt         DateTime     @default(now())
-  updatedAt         DateTime     @updatedAt
-  deletedAt         DateTime?
-  outputConnections Connection[] @relation("FromNode")
-  inputConnections  Connection[] @relation("ToNode")
-  credential        Credential?  @relation(fields: [credentialId], references: [id])
-  workflow          Workflow     @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+  outputConnections Connection[]    @relation("FromNode")
+  inputConnections  Connection[]    @relation("ToNode")
+  credential        Credential?     @relation(fields: [credentialId], references: [id])
+  workflow          Workflow        @relation(fields: [workflowId], references: [id], onDelete: Cascade)
   nodeExecutions    NodeExecution[]
 
   @@index([workflowId, type])
@@ -250,18 +250,18 @@ model Execution {
   startedAt      DateTime              @default(now())
   completedAt    DateTime?
   inngestEventId String
-  versionUsed    Int?
-  retryCount     Int                   @default(0)
-  maxRetries     Int                   @default(3)
-  idempotencyKey String?
-  archivedAt     DateTime?
-  queueStatus    QueueStatus           @default(QUEUED)
-  priority       Int                   @default(0)
-  scheduledAt    DateTime?
-  output         Json?
-  retryStrategy  String                @default("exponential")
-  lastRetryAt    DateTime?
   deletedAt      DateTime?
+  output         Json?
+  archivedAt     DateTime?
+  idempotencyKey String?
+  maxRetries     Int                   @default(3)
+  retryCount     Int                   @default(0)
+  versionUsed    Int?
+  lastRetryAt    DateTime?
+  priority       Int                   @default(0)
+  queueStatus    QueueStatus           @default(QUEUED)
+  retryStrategy  String                @default("exponential")
+  scheduledAt    DateTime?
   workflow       Workflow              @relation(fields: [workflowId], references: [id], onDelete: Cascade)
   checkpoints    ExecutionCheckpoint[]
   nodeExecutions NodeExecution[]
@@ -274,26 +274,25 @@ model Execution {
   @@index([inngestEventId])
   @@index([idempotencyKey])
   @@map("execution")
-
 }
 
 model ExecutionCheckpoint {
-  id             String    @id @default(cuid())
-  executionId    String
-  nodeId         String?
-  sequence       Int
-  state          Json
-  nodeType       NodeType?
-  error          String?
+  id              String         @id @default(cuid())
+  executionId     String
+  nodeId          String?
+  sequence        Int
+  state           Json
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  deletedAt       DateTime?
+  archivedAt      DateTime?
+  error           String?
+  nodeType        NodeType?
+  durationMs      Int?
   nodeExecutionId String?
-  retryAttempt   Int      @default(0)
-  durationMs     Int?
-  archivedAt     DateTime?
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
-  deletedAt      DateTime?
-  execution      Execution @relation(fields: [executionId], references: [id], onDelete: Cascade)
-  nodeExecution  NodeExecution? @relation(fields: [nodeExecutionId], references: [id], onDelete: SetNull)
+  retryAttempt    Int            @default(0)
+  execution       Execution      @relation(fields: [executionId], references: [id], onDelete: Cascade)
+  nodeExecution   NodeExecution? @relation(fields: [nodeExecutionId], references: [id])
 
   @@unique([executionId, sequence])
   @@index([executionId, createdAt])
@@ -303,20 +302,20 @@ model ExecutionCheckpoint {
 }
 
 model NodeExecution {
-  id            String       @id @default(cuid())
-  executionId   String
-  nodeId        String
-  attempt       Int          @default(1)
-  status        NodeStatus   @default(PENDING)
-  startedAt     DateTime     @default(now())
-  completedAt   DateTime?
-  retryCount    Int          @default(0)
-  error         String?
-  output        Json?
-  archivedAt    DateTime?
-  execution     Execution    @relation(fields: [executionId], references: [id], onDelete: Cascade)
-  node          Node         @relation(fields: [nodeId], references: [id], onDelete: Cascade)
-  checkpoints   ExecutionCheckpoint[]
+  id          String                @id @default(cuid())
+  executionId String
+  nodeId      String
+  status      NodeStatus            @default(PENDING)
+  startedAt   DateTime              @default(now())
+  completedAt DateTime?
+  retryCount  Int                   @default(0)
+  error       String?
+  output      Json?
+  archivedAt  DateTime?
+  attempt     Int                   @default(1)
+  checkpoints ExecutionCheckpoint[]
+  execution   Execution             @relation(fields: [executionId], references: [id], onDelete: Cascade)
+  node        Node                  @relation(fields: [nodeId], references: [id], onDelete: Cascade)
 
   @@unique([executionId, nodeId, attempt])
   @@index([executionId, status])
@@ -326,6 +325,37 @@ model NodeExecution {
   @@index([status, retryCount])
   @@index([executionId, attempt])
   @@map("node_execution")
+}
+
+model RateLimitBucket {
+  id             String   @id @default(cuid())
+  organizationId String
+  limitType      String
+  count          Int      @default(0)
+  limit          Int
+  resetAt        DateTime
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@unique([organizationId, limitType, resetAt])
+  @@index([organizationId, limitType])
+  @@map("rate_limit_bucket")
+}
+
+model ExecutionAuditLog {
+  id             String    @id @default(cuid())
+  executionId    String
+  organizationId String
+  action         String
+  details        Json?
+  createdAt      DateTime  @default(now())
+  deletedAt      DateTime?
+  archivedAt     DateTime?
+
+  @@index([executionId])
+  @@index([organizationId, createdAt])
+  @@index([executionId, createdAt])
+  @@map("execution_audit_log")
 }
 
 enum Role {
@@ -399,35 +429,4 @@ enum NodeStatus {
   SUCCESS
   FAILED
   RETRIED
-}
-
-model RateLimitBucket {
-  id             String    @id @default(cuid())
-  organizationId String
-  limitType      String    // "executions_per_day", "api_calls_per_minute", etc.
-  count          Int       @default(0)
-  limit          Int
-  resetAt        DateTime
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
-
-  @@unique([organizationId, limitType, resetAt])
-  @@index([organizationId, limitType])
-  @@map("rate_limit_bucket")
-}
-
-model ExecutionAuditLog {
-  id             String    @id @default(cuid())
-  executionId    String
-  organizationId String
-  action         String    // "queued", "started", "retried", "completed", "failed"
-  details        Json?
-  archivedAt     DateTime?
-  createdAt      DateTime  @default(now())
-  deletedAt      DateTime?
-
-  @@index([executionId])
-  @@index([organizationId, createdAt])
-  @@index([executionId, createdAt])
-  @@map("execution_audit_log")
 }
