@@ -13,6 +13,39 @@ import {
   protectedProcedure,
 } from "@/trpc/init";
 
+type WorkflowEdgeInput = {
+  source: string;
+  target: string;
+  sourceHandle?: string | null;
+  targetHandle?: string | null;
+};
+
+const normalizeConnectionHandle = (handle?: string | null) => handle || "main";
+
+const getConnectionKey = (edge: WorkflowEdgeInput) =>
+  [
+    edge.source,
+    edge.target,
+    normalizeConnectionHandle(edge.sourceHandle),
+    normalizeConnectionHandle(edge.targetHandle),
+  ].join(":");
+
+const dedupeWorkflowEdges = <TEdge extends WorkflowEdgeInput>(
+  edges: TEdge[],
+) => {
+  const seen = new Set<string>();
+  return edges.filter((edge) => {
+    const key = getConnectionKey(edge);
+
+    if (seen.has(key)) {
+      return false;
+    }
+
+    seen.add(key);
+    return true;
+  });
+};
+
 export const workflowsRouter = createTRPCRouter({
   execute: protectedProcedure
     .input(z.object({ id: z.string() }))
@@ -77,22 +110,14 @@ export const workflowsRouter = createTRPCRouter({
           })),
         });
 
-        const uniqueTemplateEdges = new Map<string, any>();
-        for (const edge of template.edges) {
-          const key = `${nodeIdMap.get(edge.source) ?? edge.source}-${nodeIdMap.get(edge.target) ?? edge.target}-${edge.sourceHandle || "main"}-${edge.targetHandle || "main"}`;
-          if (!uniqueTemplateEdges.has(key)) {
-            uniqueTemplateEdges.set(key, {
-              workflowId: workflow.id,
-              fromNodeId: nodeIdMap.get(edge.source) ?? edge.source,
-              toNodeId: nodeIdMap.get(edge.target) ?? edge.target,
-              fromOutput: edge.sourceHandle || "main",
-              toInput: edge.targetHandle || "main",
-            });
-          }
-        }
-
         await tx.connection.createMany({
-          data: Array.from(uniqueTemplateEdges.values()),
+          data: dedupeWorkflowEdges(template.edges).map((edge) => ({
+            workflowId: workflow.id,
+            fromNodeId: nodeIdMap.get(edge.source) ?? edge.source,
+            toNodeId: nodeIdMap.get(edge.target) ?? edge.target,
+            fromOutput: normalizeConnectionHandle(edge.sourceHandle),
+            toInput: normalizeConnectionHandle(edge.targetHandle),
+          })),
         });
 
         return workflow;
@@ -157,22 +182,14 @@ export const workflowsRouter = createTRPCRouter({
         });
 
         // Create connections with de-duplication to prevent unique constraint failures
-        const uniqueEdges = new Map<string, any>();
-        for (const edge of edges) {
-          const key = `${edge.source}-${edge.target}-${edge.sourceHandle || "main"}-${edge.targetHandle || "main"}`;
-          if (!uniqueEdges.has(key)) {
-            uniqueEdges.set(key, {
-              workflowId: id,
-              fromNodeId: edge.source,
-              toNodeId: edge.target,
-              fromOutput: edge.sourceHandle || "main",
-              toInput: edge.targetHandle || "main",
-            });
-          }
-        }
-
         await tx.connection.createMany({
-          data: Array.from(uniqueEdges.values()),
+          data: dedupeWorkflowEdges(edges).map((edge) => ({
+            workflowId: id,
+            fromNodeId: edge.source,
+            toNodeId: edge.target,
+            fromOutput: normalizeConnectionHandle(edge.sourceHandle),
+            toInput: normalizeConnectionHandle(edge.targetHandle),
+          })),
         });
 
         // Update workflow's updateAt timestamp
