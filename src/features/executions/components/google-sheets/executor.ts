@@ -1,4 +1,4 @@
-import { google } from "googleapis";
+import { auth as googleAuth, sheets as googleSheets } from "@googleapis/sheets";
 import { NonRetriableError } from "inngest";
 import { z } from "zod";
 import type { NodeExecutor } from "@/features/executions/types";
@@ -54,12 +54,12 @@ export const googleSheetsExecutor: NodeExecutor<GoogleSheetsData> = async ({
     );
   }
 
-  const auth = new google.auth.OAuth2();
+  const auth = new googleAuth.OAuth2();
   auth.setCredentials({
     access_token: decrypt(credentialValue),
   });
 
-  const sheets = google.sheets({ version: "v4", auth });
+  const sheets = googleSheets({ version: "v4", auth });
 
   try {
     const result = await step.run("google-sheets-action", async () => {
