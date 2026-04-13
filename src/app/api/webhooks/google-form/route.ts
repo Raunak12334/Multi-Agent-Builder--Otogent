@@ -1,3 +1,4 @@
+import { NodeType } from "@prisma/client";
 import { type NextRequest, NextResponse } from "next/server";
 import { sendWorkflowExecution } from "@/inngest/utils";
 import prisma from "@/lib/db";
@@ -6,6 +7,7 @@ export async function POST(request: NextRequest) {
   try {
     const url = new URL(request.url);
     const workflowId = url.searchParams.get("workflowId");
+    const nodeId = url.searchParams.get("nodeId");
     const secret = url.searchParams.get("secret");
 
     if (!workflowId) {
@@ -42,9 +44,40 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const triggerNodes = await prisma.node.findMany({
+      where: {
+        workflowId,
+        type: NodeType.GOOGLE_FORM_TRIGGER,
+        ...(nodeId ? { id: nodeId } : {}),
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    if (triggerNodes.length === 0) {
+      return NextResponse.json(
+        { success: false, error: "Google Form trigger not found" },
+        { status: 404 },
+      );
+    }
+
+    if (!nodeId && triggerNodes.length > 1) {
+      return NextResponse.json(
+        {
+          success: false,
+          error:
+            "Multiple Google Form triggers found. Add nodeId to the webhook URL.",
+        },
+        { status: 400 },
+      );
+    }
+
+    const triggerNodeId = triggerNodes[0].id;
     const body = await request.json();
 
     const formData = {
+      nodeId: triggerNodeId,
       formId: body.formId,
       formTitle: body.formTitle,
       responseId: body.responseId,
@@ -57,6 +90,7 @@ export async function POST(request: NextRequest) {
     // Trigger an Inngest job
     await sendWorkflowExecution({
       workflowId,
+      triggerNodeId,
       initialData: {
         googleForm: formData,
       },
