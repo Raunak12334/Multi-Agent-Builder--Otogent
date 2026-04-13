@@ -20,7 +20,11 @@ export const GoogleFormTrigger = memo((props: NodeProps) => {
 
   return (
     <>
-      <GoogleFormTriggerDialog open={dialogOpen} onOpenChange={setDialogOpen} />
+      <GoogleFormTriggerDialog
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+        nodeId={props.id}
+      />
       <BaseTriggerNode
         {...props}
         icon="/logos/googleform.svg"

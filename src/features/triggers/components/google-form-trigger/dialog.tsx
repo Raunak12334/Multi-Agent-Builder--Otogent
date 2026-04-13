@@ -18,15 +18,20 @@ import { generateGoogleFormScript } from "./utils";
 interface Props {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  nodeId: string;
 }
 
-export const GoogleFormTriggerDialog = ({ open, onOpenChange }: Props) => {
+export const GoogleFormTriggerDialog = ({
+  open,
+  onOpenChange,
+  nodeId,
+}: Props) => {
   const params = useParams();
   const workflowId = params.workflowId as string;
 
   // Construct the webhook URL
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-  const webhookUrl = `${baseUrl}/api/webhooks/google-form?workflowId=${workflowId}`;
+  const webhookUrl = `${baseUrl}/api/webhooks/google-form?workflowId=${workflowId}&nodeId=${nodeId}`;
 
   const copyToClipboard = async () => {
     try {

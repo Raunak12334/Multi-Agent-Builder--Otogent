@@ -17,7 +17,7 @@ export const generateGoogleFormScript = (
     formTitle: e.source.getTitle(),
     responseId: formResponse.getId(),
     timestamp: formResponse.getTimestamp(),
-    respondentEmail: formResponse.getRespondentEmail(),
+    respondentEmail: getRespondentEmail_(formResponse),
     responses: responses
   };
 
@@ -31,8 +31,17 @@ export const generateGoogleFormScript = (
   var WEBHOOK_URL = '${webhookUrl}';
 
   try {
-    UrlFetchApp.fetch(WEBHOOK_URL, options);
+    var response = UrlFetchApp.fetch(WEBHOOK_URL, options);
+    Logger.log('Otogent webhook response: ' + response.getResponseCode());
   } catch(error) {
     console.error('Webhook failed:', error);
+  }
+}
+
+function getRespondentEmail_(formResponse) {
+  try {
+    return formResponse.getRespondentEmail();
+  } catch (error) {
+    return '';
   }
 }`;
