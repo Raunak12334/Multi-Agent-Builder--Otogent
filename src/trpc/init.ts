@@ -5,10 +5,10 @@ import superjson from "superjson";
 import { auth } from "@/lib/auth";
 import { polarClient } from "@/lib/polar";
 export const createTRPCContext = cache(async () => {
-  /**
-   * @see: https://trpc.io/docs/server/context
-   */
-  return { userId: "user_123" };
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+  return { auth: session };
 });
 // Avoid exporting the entire t-object
 // since it's not very descriptive.
@@ -95,3 +95,35 @@ export const premiumProcedure = protectedProcedure.use(
     return next({ ctx: { ...ctx, customer } });
   },
 );
+
+export const superAdminProcedure = baseProcedure.use(async ({ ctx, next }) => {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session) {
+    throw new TRPCError({
+      code: "UNAUTHORIZED",
+      message: "Unauthorized",
+    });
+  }
+
+  const user = await prisma.user.findUnique({
+    where: { id: session.user.id },
+    select: { role: true },
+  });
+
+  if (user?.role !== "SUPER_ADMIN") {
+    throw new TRPCError({
+      code: "FORBIDDEN",
+      message: "Super Admin access required",
+    });
+  }
+
+  return next({
+    ctx: {
+      ...ctx,
+      auth: session,
+    },
+  });
+});

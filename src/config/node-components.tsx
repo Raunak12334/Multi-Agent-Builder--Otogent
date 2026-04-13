@@ -1,5 +1,5 @@
 import { NodeType } from "@prisma/client";
-import type { NodeTypes } from "@xyflow/react";
+import type { Node, NodeProps, NodeTypes } from "@xyflow/react";
 import { InitialNode } from "@/components/initial-node";
 import { AnthropicNode } from "@/features/executions/components/anthropic/node";
 import { ConditionNode } from "@/features/executions/components/condition/node";
@@ -29,6 +29,16 @@ import { ManualTriggerNode } from "@/features/triggers/components/manual-trigger
 import { StripeTriggerNode } from "@/features/triggers/components/stripe-trigger/node";
 import { WebhookTriggerNode } from "@/features/triggers/components/webhook-trigger/node";
 
+const createGenericNode = (title: string) => {
+  const GenericNode = (props: NodeProps<Node>) => (
+    <GenericIntegrationNode {...props} title={title} />
+  );
+
+  GenericNode.displayName = `${title.replace(/\s+/g, "")}Node`;
+
+  return GenericNode;
+};
+
 export const nodeComponents = {
   [NodeType.INITIAL]: InitialNode,
   [NodeType.WEBHOOK_TRIGGER]: WebhookTriggerNode,
@@ -56,31 +66,15 @@ export const nodeComponents = {
   [NodeType.LINKEDIN]: LinkedinNode,
   [NodeType.INSTAGRAM]: InstagramNode,
   [NodeType.TELEGRAM]: TelegramNode,
-  [NodeType.GOOGLE_SHEETS]: (props: any) => (
-    <GenericIntegrationNode {...props} title="Google Sheets" />
-  ),
+  [NodeType.GOOGLE_SHEETS]: createGenericNode("Google Sheets"),
   [NodeType.EMAIL_SEND]: EmailSendNode,
-  [NodeType.EMAIL_PARSER]: (props: any) => (
-    <GenericIntegrationNode {...props} title="Email Parser" />
-  ),
-  [NodeType.SCHEDULE]: (props: any) => (
-    <GenericIntegrationNode {...props} title="Schedule" />
-  ),
-  [NodeType.DB_QUERY]: (props: any) => (
-    <GenericIntegrationNode {...props} title="DB Query" />
-  ),
-  [NodeType.TWILIO_SMS]: (props: any) => (
-    <GenericIntegrationNode {...props} title="Twilio SMS" />
-  ),
-  [NodeType.HUBSPOT]: (props: any) => (
-    <GenericIntegrationNode {...props} title="HubSpot" />
-  ),
-  [NodeType.SHOPIFY]: (props: any) => (
-    <GenericIntegrationNode {...props} title="Shopify" />
-  ),
-  [NodeType.FILE_STORAGE]: (props: any) => (
-    <GenericIntegrationNode {...props} title="File Storage" />
-  ),
+  [NodeType.EMAIL_PARSER]: createGenericNode("Email Parser"),
+  [NodeType.SCHEDULE]: createGenericNode("Schedule"),
+  [NodeType.DB_QUERY]: createGenericNode("DB Query"),
+  [NodeType.TWILIO_SMS]: createGenericNode("Twilio SMS"),
+  [NodeType.HUBSPOT]: createGenericNode("HubSpot"),
+  [NodeType.SHOPIFY]: createGenericNode("Shopify"),
+  [NodeType.FILE_STORAGE]: createGenericNode("File Storage"),
 } as const satisfies NodeTypes;
 
 export type RegisteredNodeType = keyof typeof nodeComponents;

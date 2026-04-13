@@ -12,9 +12,11 @@ import {
 } from "@/components/react-flow/node-status-indicator";
 import { WorkflowNode } from "@/components/workflow-node";
 
+import { nodeCatalog } from "@/config/node-catalog";
+
 interface BaseExecutionNodeProps extends NodeProps {
-  icon: LucideIcon | string;
-  name: string;
+  icon?: LucideIcon | string;
+  name?: string;
   description?: string;
   children?: ReactNode;
   status?: NodeStatus;
@@ -25,14 +27,18 @@ interface BaseExecutionNodeProps extends NodeProps {
 export const BaseExecutionNode = memo(
   ({
     id,
-    icon: Icon,
-    name,
+    type,
+    icon: propsIcon,
+    name: propsName,
     description,
     children,
     status = "initial",
     onSettings,
     onDoubleClick,
   }: BaseExecutionNodeProps) => {
+    const catalogItem = nodeCatalog.find((item) => item.type === type);
+    const Icon = propsIcon || catalogItem?.icon || "/logo.svg";
+    const name = propsName || catalogItem?.label || "Unknown Node";
     const { setNodes, setEdges } = useReactFlow();
     const handleDelete = () => {
       setNodes((currentNodes) => {
@@ -57,9 +63,15 @@ export const BaseExecutionNode = memo(
       >
         <NodeStatusIndicator status={status} variant="border">
           <BaseNode status={status} onDoubleClick={onDoubleClick}>
-            <BaseNodeContent className="flex flex-col items-center justify-center p-3 min-w-[80px]">
+            <BaseNodeContent className="flex flex-col items-center justify-center p-2 min-w-[64px]">
               {typeof Icon === "string" ? (
-                <Image src={Icon} alt={name} width={24} height={24} className="object-contain" />
+                <Image
+                  src={Icon}
+                  alt={name}
+                  width={24}
+                  height={24}
+                  className="object-contain"
+                />
               ) : (
                 <Icon className="size-6 text-muted-foreground" />
               )}

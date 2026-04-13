@@ -14,7 +14,18 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { getErrorMessage } from "@/lib/utils";
 import { submitOnboardingForm } from "./actions";
+
+function isRedirectError(error: unknown): error is {
+  digest: string;
+} {
+  if (typeof error !== "object" || error === null || !("digest" in error)) {
+    return false;
+  }
+
+  return typeof error.digest === "string";
+}
 
 export function OnboardingWizard({
   hasInvite = false,
@@ -40,16 +51,19 @@ export function OnboardingWizard({
     setLoading(true);
     try {
       await submitOnboardingForm(formData);
-    } catch (error: any) {
+    } catch (error: unknown) {
       // In Next.js, redirect() throws an error that should not be caught if we want the redirect to work.
       // However, when calling from a client component, we can check if it's a redirect error.
-      if (error.digest?.includes("NEXT_REDIRECT")) {
+      if (isRedirectError(error) && error.digest.includes("NEXT_REDIRECT")) {
         return;
       }
 
       console.error("Onboarding error:", error);
       toast.error(
-        error.message || "Failed to submit onboarding form. Please try again.",
+        getErrorMessage(
+          error,
+          "Failed to submit onboarding form. Please try again.",
+        ),
       );
       setLoading(false);
     }

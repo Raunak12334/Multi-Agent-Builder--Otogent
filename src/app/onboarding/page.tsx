@@ -9,10 +9,10 @@ export default async function OnboardingPage({
   searchParams: Promise<{ token?: string }>;
 }) {
   const { token } = await searchParams;
-  const { session } = await enforceAppRouting("/onboarding");
+  const { user } = await enforceAppRouting("/onboarding");
 
   let pendingInvite = null;
-  const userEmail = session.user.email.toLowerCase().trim();
+  const userEmail = user.email.toLowerCase().trim();
 
   if (token) {
     const tokenHash = crypto.createHash("sha256").update(token).digest("hex");

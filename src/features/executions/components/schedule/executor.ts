@@ -45,7 +45,7 @@ export const scheduleExecutor: NodeExecutor<ScheduleData> = async ({
       ...context,
       [validated.variableName]: result,
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
     await publish(
       scheduleChannel().status({
         nodeId,

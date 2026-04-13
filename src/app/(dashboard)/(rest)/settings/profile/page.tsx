@@ -44,21 +44,21 @@ export default async function ProfileSettingsPage() {
           </div>
           <div className="p-6 grid gap-6 md:grid-cols-2">
             <div>
-              <label className="text-sm text-muted-foreground mb-1 block">
+              <div className="text-sm text-muted-foreground mb-1 block">
                 Full Name
-              </label>
+              </div>
               <div className="font-medium">{user.name || "N/A"}</div>
             </div>
             <div>
-              <label className="text-sm text-muted-foreground mb-1 block">
+              <div className="text-sm text-muted-foreground mb-1 block">
                 Email
-              </label>
+              </div>
               <div className="font-medium">{user.email}</div>
             </div>
             <div>
-              <label className="text-sm text-muted-foreground mb-1 block">
+              <div className="text-sm text-muted-foreground mb-1 block">
                 System Role
-              </label>
+              </div>
               <Badge
                 variant={user.role === "ADMIN" ? "default" : "secondary"}
                 className="mt-1"
@@ -77,24 +77,24 @@ export default async function ProfileSettingsPage() {
           </div>
           <div className="p-6 grid gap-6 md:grid-cols-2">
             <div>
-              <label className="text-sm text-muted-foreground mb-1 block">
+              <div className="text-sm text-muted-foreground mb-1 block">
                 Workspace Name
-              </label>
+              </div>
               <div className="font-medium">{organization.name}</div>
             </div>
             <div>
-              <label className="text-sm text-muted-foreground mb-1 block">
+              <div className="text-sm text-muted-foreground mb-1 block">
                 Primary Use Case
-              </label>
+              </div>
               <div className="font-medium capitalize">
                 {organization.useCase}
               </div>
             </div>
 
             <div className="md:col-span-2 pt-4 border-t mt-2">
-              <label className="text-sm text-muted-foreground mb-3 flex items-center gap-2">
+              <div className="text-sm text-muted-foreground mb-3 flex items-center gap-2">
                 <Crown className="h-4 w-4" /> Subscription Status
-              </label>
+              </div>
 
               <div className="flex items-center justify-between p-4 border rounded-xl bg-slate-50 dark:bg-slate-950">
                 <div className="flex items-center gap-4">

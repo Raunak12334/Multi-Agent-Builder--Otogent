@@ -37,6 +37,7 @@ const landingSerif = Quattrocento({
 export const viewport = {
   width: "device-width",
   initialScale: 1,
+  themeColor: "#000000",
 };
 
 export const metadata: Metadata = {
@@ -58,7 +59,6 @@ export const metadata: Metadata = {
   category: "technology",
   referrer: "origin-when-cross-origin",
   manifest: "/site.webmanifest",
-  themeColor: "#000000",
 
   keywords: [
     "AI agent platform",
@@ -131,31 +131,30 @@ export default function RootLayout({
           id="ld-json"
           type="application/ld+json"
           strategy="beforeInteractive"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              "@context": "https://schema.org",
-              "@type": "SoftwareApplication",
-              name: "Otogent",
-              url: "https://otogent.com",
-              applicationCategory: "AI Platform",
-              operatingSystem: "Web",
-              description:
-                "All-in-one AI agent platform for building and managing multi-agent workflows to automate repetitive tasks.",
-              offers: {
-                "@type": "Offer",
-                price: "0",
-                priceCurrency: "USD",
-              },
-              featureList: [
-                "Multi-agent workflow builder",
-                "OpenAI integration",
-                "Anthropic integration",
-                "Gemini integration",
-                "No-code AI automation",
-              ],
-            }),
-          }}
-        />
+        >
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "SoftwareApplication",
+            name: "Otogent",
+            url: "https://otogent.com",
+            applicationCategory: "AI Platform",
+            operatingSystem: "Web",
+            description:
+              "All-in-one AI agent platform for building and managing multi-agent workflows to automate repetitive tasks.",
+            offers: {
+              "@type": "Offer",
+              price: "0",
+              priceCurrency: "USD",
+            },
+            featureList: [
+              "Multi-agent workflow builder",
+              "OpenAI integration",
+              "Anthropic integration",
+              "Gemini integration",
+              "No-code AI automation",
+            ],
+          })}
+        </Script>
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${landingSans.variable} ${landingSerif.variable} antialiased`}

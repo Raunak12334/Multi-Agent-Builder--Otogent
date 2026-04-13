@@ -2,6 +2,7 @@ import { NonRetriableError } from "inngest";
 import { z } from "zod";
 import type { NodeExecutor } from "@/features/executions/types";
 import { fileStorageChannel } from "@/inngest/channels/file-storage";
+import { getErrorMessage } from "@/lib/utils";
 
 const fileStorageSchema = z.object({
   variableName: z.string().min(1),
@@ -60,13 +61,15 @@ export const fileStorageExecutor: NodeExecutor<FileStorageData> = async ({
       ...context,
       [validated.variableName]: result,
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
     await publish(
       fileStorageChannel().status({
         nodeId,
         status: "error",
       }),
     );
-    throw new NonRetriableError(`File Storage Error: ${error.message}`);
+    throw new NonRetriableError(
+      `File Storage Error: ${getErrorMessage(error, "Unknown file storage error")}`,
+    );
   }
 };

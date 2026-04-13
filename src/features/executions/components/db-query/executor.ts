@@ -2,6 +2,7 @@ import { NonRetriableError } from "inngest";
 import { z } from "zod";
 import type { NodeExecutor } from "@/features/executions/types";
 import { dbQueryChannel } from "@/inngest/channels/db-query";
+import { getErrorMessage } from "@/lib/utils";
 
 const dbQuerySchema = z.object({
   variableName: z.string().min(1),
@@ -57,13 +58,15 @@ export const dbQueryExecutor: NodeExecutor<DbQueryData> = async ({
       ...context,
       [validated.variableName]: result,
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
     await publish(
       dbQueryChannel().status({
         nodeId,
         status: "error",
       }),
     );
-    throw new NonRetriableError(`Database Query Error: ${error.message}`);
+    throw new NonRetriableError(
+      `Database Query Error: ${getErrorMessage(error, "Unknown database query error")}`,
+    );
   }
 };

@@ -62,8 +62,6 @@ export const SlackNode = memo((props: NodeProps<SlackNodeType>) => {
       <BaseExecutionNode
         {...props}
         id={props.id}
-        icon="/logos/slack.svg"
-        name="Slack"
         status={nodeStatus}
         description={description}
         onSettings={handleOpenSettings}

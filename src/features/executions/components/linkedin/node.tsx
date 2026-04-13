@@ -1,7 +1,6 @@
 "use client";
 
 import { type Node, type NodeProps, useReactFlow } from "@xyflow/react";
-import { LinkedinIcon } from "lucide-react";
 import { memo, useState } from "react";
 import { LINKEDIN_CHANNEL_NAME } from "@/inngest/channels/linkedin";
 import { useNodeStatus } from "../../hooks/use-node-status";
@@ -57,8 +56,6 @@ export const LinkedinNode = memo((props: NodeProps<LinkedinNodeType>) => {
       <BaseExecutionNode
         {...props}
         id={props.id}
-        icon={LinkedinIcon}
-        name="LinkedIn"
         status={nodeStatus}
         description={
           props.data?.content

@@ -2,6 +2,7 @@ import { NonRetriableError } from "inngest";
 import { z } from "zod";
 import type { NodeExecutor } from "@/features/executions/types";
 import { shopifyChannel } from "@/inngest/channels/shopify";
+import { getErrorMessage } from "@/lib/utils";
 
 const shopifySchema = z.object({
   variableName: z.string().min(1),
@@ -56,13 +57,15 @@ export const shopifyExecutor: NodeExecutor<ShopifyData> = async ({
       ...context,
       [validated.variableName]: result,
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
     await publish(
       shopifyChannel().status({
         nodeId,
         status: "error",
       }),
     );
-    throw new NonRetriableError(`Shopify Error: ${error.message}`);
+    throw new NonRetriableError(
+      `Shopify Error: ${getErrorMessage(error, "Unknown Shopify error")}`,
+    );
   }
 };

@@ -4,15 +4,15 @@ import { auth } from "./auth";
 import prisma from "./db";
 
 export const requireAuth = async () => {
-  const session = await auth.api.getSession({
+  const authData = await auth.api.getSession({
     headers: await headers(),
   });
 
-  if (!session) {
+  if (!authData) {
     redirect("/login");
   }
 
-  return session;
+  return authData;
 };
 
 /**
@@ -20,10 +20,10 @@ export const requireAuth = async () => {
  * CRITICAL for multi-tenant isolation.
  */
 export const requireOrganization = async () => {
-  const session = await requireAuth();
+  const { session, user: authUser } = await requireAuth();
 
   const user = await prisma.user.findUnique({
-    where: { id: session.user.id },
+    where: { id: authUser.id },
     select: {
       id: true,
       organizationId: true,
@@ -38,7 +38,7 @@ export const requireOrganization = async () => {
   return {
     session,
     user: {
-      ...session.user,
+      ...authUser,
       organizationId: user.organizationId,
       role: user.role,
     },
@@ -61,21 +61,39 @@ export function assertSameOrganization(
   }
 }
 
-export const requireUnauth = async () => {
-  const session = await auth.api.getSession({
-    headers: await headers(),
+/**
+ * Enforces that a user is a super-admin.
+ * For platform-level admin access.
+ */
+export const requireSuperAdmin = async () => {
+  const { session, user: authUser } = await requireAuth();
+
+  const user = await prisma.user.findUnique({
+    where: { id: authUser.id },
+    select: {
+      id: true,
+      role: true,
+    },
   });
 
-  if (session) {
-    redirect("/workflows");
+  if (!user || user.role !== "SUPER_ADMIN") {
+    throw new Error("Unauthorized: Super Admin access required");
   }
+
+  return {
+    session,
+    user: {
+      ...authUser,
+      role: user.role,
+    },
+  };
 };
 
 export const enforceAppRouting = async (currentPath?: string) => {
-  const session = await requireAuth();
+  const { session, user: authUser } = await requireAuth();
 
   const user = await prisma.user.findUnique({
-    where: { id: session.user.id },
+    where: { id: authUser.id },
     include: {
       organization: {
         include: { subscription: true },
@@ -85,6 +103,14 @@ export const enforceAppRouting = async (currentPath?: string) => {
 
   if (!user) {
     redirect("/login");
+  }
+
+  // Super-admins bypass organization requirements
+  if (user.role === "SUPER_ADMIN") {
+    if (currentPath === "/onboarding" || currentPath === "/pricing") {
+      redirect("/workflows");
+    }
+    return { session, user };
   }
 
   const { organizationId, onboardingCompleted, organization } = user;
@@ -108,4 +134,14 @@ export const enforceAppRouting = async (currentPath?: string) => {
   }
 
   return { session, user };
+};
+
+export const requireUnauth = async () => {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (session) {
+    redirect("/workflows");
+  }
 };

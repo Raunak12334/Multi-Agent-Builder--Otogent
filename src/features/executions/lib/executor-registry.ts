@@ -35,7 +35,13 @@ import { twilioSmsExecutor } from "../components/twilio-sms/executor";
 import { xExecutor } from "../components/x/executor";
 import type { NodeExecutor } from "../types";
 
-export const executorRegistry: Record<NodeType, NodeExecutor<any>> = {
+type RegistryExecutor = NodeExecutor<Record<string, unknown>>;
+
+const asRegistryExecutor = <TData>(
+  executor: NodeExecutor<TData>,
+): RegistryExecutor => executor as RegistryExecutor;
+
+export const executorRegistry: Record<NodeType, RegistryExecutor> = {
   [NodeType.INITIAL]: manualTriggerExecutor,
   [NodeType.MANUAL_TRIGGER]: manualTriggerExecutor,
   [NodeType.WEBHOOK_TRIGGER]: webhookTriggerExecutor,
@@ -62,18 +68,18 @@ export const executorRegistry: Record<NodeType, NodeExecutor<any>> = {
   [NodeType.LINKEDIN]: linkedinExecutor,
   [NodeType.INSTAGRAM]: instagramExecutor,
   [NodeType.TELEGRAM]: telegramExecutor,
-  [NodeType.GOOGLE_SHEETS]: googleSheetsExecutor,
-  [NodeType.EMAIL_SEND]: emailSendExecutor,
-  [NodeType.DB_QUERY]: dbQueryExecutor,
-  [NodeType.TWILIO_SMS]: twilioSmsExecutor,
-  [NodeType.EMAIL_PARSER]: emailParserExecutor,
-  [NodeType.SCHEDULE]: scheduleExecutor,
-  [NodeType.FILE_STORAGE]: fileStorageExecutor,
-  [NodeType.HUBSPOT]: hubspotExecutor,
-  [NodeType.SHOPIFY]: shopifyExecutor,
+  [NodeType.GOOGLE_SHEETS]: asRegistryExecutor(googleSheetsExecutor),
+  [NodeType.EMAIL_SEND]: asRegistryExecutor(emailSendExecutor),
+  [NodeType.DB_QUERY]: asRegistryExecutor(dbQueryExecutor),
+  [NodeType.TWILIO_SMS]: asRegistryExecutor(twilioSmsExecutor),
+  [NodeType.EMAIL_PARSER]: asRegistryExecutor(emailParserExecutor),
+  [NodeType.SCHEDULE]: asRegistryExecutor(scheduleExecutor),
+  [NodeType.FILE_STORAGE]: asRegistryExecutor(fileStorageExecutor),
+  [NodeType.HUBSPOT]: asRegistryExecutor(hubspotExecutor),
+  [NodeType.SHOPIFY]: asRegistryExecutor(shopifyExecutor),
 };
 
-export const getExecutor = (type: NodeType): NodeExecutor<any> => {
+export const getExecutor = (type: NodeType): RegistryExecutor => {
   const executor = executorRegistry[type];
   if (!executor) {
     throw new Error(`No executor found for node type: ${type}`);

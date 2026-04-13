@@ -2,6 +2,7 @@ import { NonRetriableError } from "inngest";
 import { z } from "zod";
 import type { NodeExecutor } from "@/features/executions/types";
 import { emailParserChannel } from "@/inngest/channels/email-parser";
+import { getErrorMessage } from "@/lib/utils";
 
 const emailParserSchema = z.object({
   variableName: z.string().min(1),
@@ -59,13 +60,15 @@ export const emailParserExecutor: NodeExecutor<EmailParserData> = async ({
       ...context,
       [validated.variableName]: result,
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
     await publish(
       emailParserChannel().status({
         nodeId,
         status: "error",
       }),
     );
-    throw new NonRetriableError(`Email Parser Error: ${error.message}`);
+    throw new NonRetriableError(
+      `Email Parser Error: ${getErrorMessage(error, "Unknown email parser error")}`,
+    );
   }
 };

@@ -1,6 +1,20 @@
 import { Resend } from "resend";
 
-const resend = new Resend(process.env.RESEND_API_KEY || "re_placeholder");
+let resendClient: Resend | null = null;
+
+const getResendClient = () => {
+  const apiKey = process.env.RESEND_API_KEY;
+
+  if (!apiKey) {
+    throw new Error("RESEND_API_KEY environment variable is required");
+  }
+
+  if (!resendClient) {
+    resendClient = new Resend(apiKey);
+  }
+
+  return resendClient;
+};
 
 export async function sendInviteEmail({
   to,
@@ -16,6 +30,7 @@ export async function sendInviteEmail({
   const inviteLink = `${process.env.NEXT_PUBLIC_APP_URL}/signup?token=${token}`;
 
   try {
+    const resend = getResendClient();
     const data = await resend.emails.send({
       from: "Otogent <onboarding@resend.dev>", // Replace with your domain in production
       to: [to],

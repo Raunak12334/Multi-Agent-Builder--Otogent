@@ -3,6 +3,7 @@ import { NonRetriableError } from "inngest";
 import { z } from "zod";
 import type { NodeExecutor } from "@/features/executions/types";
 import { emailChannel } from "@/inngest/channels/email";
+import { getErrorMessage } from "@/lib/utils";
 
 const emailSendSchema = z.object({
   variableName: z.string().min(1),
@@ -63,13 +64,15 @@ export const emailSendExecutor: NodeExecutor<EmailSendData> = async ({
       ...context,
       [validated.variableName]: result,
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
     await publish(
       emailChannel().status({
         nodeId,
         status: "error",
       }),
     );
-    throw new NonRetriableError(`Email Send Error: ${error.message}`);
+    throw new NonRetriableError(
+      `Email Send Error: ${getErrorMessage(error, "Unknown email send error")}`,
+    );
   }
 };

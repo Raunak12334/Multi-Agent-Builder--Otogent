@@ -31,6 +31,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { getErrorMessage } from "@/lib/utils";
 import {
   changeUserRole,
   inviteTeamMember,
@@ -145,8 +146,8 @@ export function TeamManagementClient({
           },
         });
         setInviteEmail("");
-      } catch (e: any) {
-        toast.error(e.message || "Failed to send invite");
+      } catch (error: unknown) {
+        toast.error(getErrorMessage(error, "Failed to send invite"));
       }
     });
   };

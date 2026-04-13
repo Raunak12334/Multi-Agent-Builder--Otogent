@@ -12,9 +12,11 @@ import {
 } from "@/components/react-flow/node-status-indicator";
 import { WorkflowNode } from "@/components/workflow-node";
 
+import { nodeCatalog } from "@/config/node-catalog";
+
 interface BaseTriggerNodeProps extends NodeProps {
-  icon: LucideIcon | string;
-  name: string;
+  icon?: LucideIcon | string;
+  name?: string;
   description?: string;
   children?: ReactNode;
   status?: NodeStatus;
@@ -25,14 +27,18 @@ interface BaseTriggerNodeProps extends NodeProps {
 export const BaseTriggerNode = memo(
   ({
     id,
-    icon: Icon,
-    name,
+    type,
+    icon: propsIcon,
+    name: propsName,
     description,
     children,
     status = "initial",
     onSettings,
     onDoubleClick,
   }: BaseTriggerNodeProps) => {
+    const catalogItem = nodeCatalog.find((item) => item.type === type);
+    const Icon = propsIcon || catalogItem?.icon || "/logo.svg";
+    const name = propsName || catalogItem?.label || "Trigger Node";
     const { setNodes, setEdges } = useReactFlow();
     const handleDelete = () => {
       setNodes((currentNodes) => {

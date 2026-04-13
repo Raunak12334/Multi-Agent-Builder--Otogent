@@ -160,12 +160,16 @@ const runLegacyWorkflow = async (params: {
   let context = params.initialData;
 
   for (const node of params.orderedNodes) {
-    console.log(`[runLegacyWorkflow] Checking node: ${node.id} (${node.type}). Active: ${activeNodes.has(node.id)}`);
+    console.log(
+      `[runLegacyWorkflow] Checking node: ${node.id} (${node.type}). Active: ${activeNodes.has(node.id)}`,
+    );
     if (!activeNodes.has(node.id)) {
       continue;
     }
 
-    console.log(`[runLegacyWorkflow] Executing node: ${node.id} (${node.type})`);
+    console.log(
+      `[runLegacyWorkflow] Executing node: ${node.id} (${node.type})`,
+    );
     const executor = getExecutor(node.type as NodeType);
     context = await executor({
       data: (node.data as Record<string, unknown>) ?? {},
@@ -183,9 +187,13 @@ const runLegacyWorkflow = async (params: {
       node.id,
     );
 
-    console.log(`[runLegacyWorkflow] Node ${node.id} finished. Activating ${nextConnections.length} next nodes.`);
+    console.log(
+      `[runLegacyWorkflow] Node ${node.id} finished. Activating ${nextConnections.length} next nodes.`,
+    );
     for (const connection of nextConnections) {
-      console.log(`[runLegacyWorkflow]   Activating node: ${connection.toNodeId}`);
+      console.log(
+        `[runLegacyWorkflow]   Activating node: ${connection.toNodeId}`,
+      );
       activeNodes.add(connection.toNodeId);
     }
   }

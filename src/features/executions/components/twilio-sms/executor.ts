@@ -3,6 +3,7 @@ import { NonRetriableError } from "inngest";
 import { z } from "zod";
 import type { NodeExecutor } from "@/features/executions/types";
 import { twilioSmsChannel } from "@/inngest/channels/twilio-sms";
+import { getErrorMessage } from "@/lib/utils";
 
 const twilioSmsSchema = z.object({
   variableName: z.string().min(1),
@@ -58,13 +59,15 @@ export const twilioSmsExecutor: NodeExecutor<TwilioSmsData> = async ({
       ...context,
       [validated.variableName]: result,
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
     await publish(
       twilioSmsChannel().status({
         nodeId,
         status: "error",
       }),
     );
-    throw new NonRetriableError(`Twilio SMS Error: ${error.message}`);
+    throw new NonRetriableError(
+      `Twilio SMS Error: ${getErrorMessage(error, "Unknown Twilio SMS error")}`,
+    );
   }
 };

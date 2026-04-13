@@ -1,7 +1,6 @@
 "use client";
 
 import { type Node, type NodeProps, useReactFlow } from "@xyflow/react";
-import { TwitterIcon } from "lucide-react";
 import { memo, useState } from "react";
 import { X_CHANNEL_NAME } from "@/inngest/channels/x";
 import { useNodeStatus } from "../../hooks/use-node-status";
@@ -62,8 +61,6 @@ export const XNode = memo((props: NodeProps<XNodeType>) => {
       <BaseExecutionNode
         {...props}
         id={props.id}
-        icon={TwitterIcon}
-        name="X (Twitter)"
         status={nodeStatus}
         description={description}
         onSettings={handleOpenSettings}

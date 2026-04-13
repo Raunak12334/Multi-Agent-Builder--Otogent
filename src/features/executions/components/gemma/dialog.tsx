@@ -173,10 +173,7 @@ export const GemmaDialog = ({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Gemma Model</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    value={field.value}
-                  >
+                  <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
                       <SelectTrigger className="w-full">
                         <SelectValue placeholder="Select a model" />

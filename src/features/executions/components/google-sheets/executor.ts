@@ -5,6 +5,7 @@ import type { NodeExecutor } from "@/features/executions/types";
 import { googleSheetsChannel } from "@/inngest/channels/google-sheets";
 import prisma from "@/lib/db";
 import { decrypt } from "@/lib/encryption";
+import { getErrorMessage } from "@/lib/utils";
 
 const googleSheetsSchema = z.object({
   variableName: z.string().min(1),
@@ -62,26 +63,36 @@ export const googleSheetsExecutor: NodeExecutor<GoogleSheetsData> = async ({
 
   try {
     const result = await step.run("google-sheets-action", async () => {
-      let response;
       const startTime = Date.now();
-
-      if (validated.action === "read") {
-        response = await sheets.spreadsheets.values.get({
-          spreadsheetId: validated.spreadsheetId,
-          range: validated.range,
-        });
-      } else if (validated.action === "append") {
-        response = await sheets.spreadsheets.values.append({
-          spreadsheetId: validated.spreadsheetId,
-          range: validated.range,
-          valueInputOption: "USER_ENTERED",
-          requestBody: { values: validated.values || [] },
-        });
-      }
+      const responseData =
+        validated.action === "read"
+          ? (
+              await sheets.spreadsheets.values.get({
+                spreadsheetId: validated.spreadsheetId,
+                range: validated.range,
+              })
+            ).data
+          : validated.action === "append"
+            ? (
+                await sheets.spreadsheets.values.append({
+                  spreadsheetId: validated.spreadsheetId,
+                  range: validated.range,
+                  valueInputOption: "USER_ENTERED",
+                  requestBody: { values: validated.values || [] },
+                })
+              ).data
+            : (
+                await sheets.spreadsheets.values.update({
+                  spreadsheetId: validated.spreadsheetId,
+                  range: validated.range,
+                  valueInputOption: "USER_ENTERED",
+                  requestBody: { values: validated.values || [] },
+                })
+              ).data;
 
       return {
         success: true,
-        data: response?.data || {},
+        data: responseData || {},
         metadata: {
           executionTime: Date.now() - startTime,
           nodeType: "GOOGLE_SHEETS",
@@ -101,13 +112,15 @@ export const googleSheetsExecutor: NodeExecutor<GoogleSheetsData> = async ({
       ...context,
       [validated.variableName]: result,
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
     await publish(
       googleSheetsChannel().status({
         nodeId,
         status: "error",
       }),
     );
-    throw new NonRetriableError(`Google Sheets Error: ${error.message}`);
+    throw new NonRetriableError(
+      `Google Sheets Error: ${getErrorMessage(error, "Unknown Google Sheets error")}`,
+    );
   }
 };

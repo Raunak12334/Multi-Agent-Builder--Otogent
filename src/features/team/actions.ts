@@ -77,17 +77,12 @@ export async function inviteTeamMember(email: string, organizationId: string) {
   });
 
   // Send real email invite using Resend
-  if (
-    process.env.RESEND_API_KEY &&
-    process.env.RESEND_API_KEY !== "re_NUfc8kGG_Q4qwjpEkjcB2EbCNYDpWfPpN"
-  ) {
-    await sendInviteEmail({
-      to: normalizedEmail,
-      organizationName: currentUser?.organization?.name || "Our Team",
-      invitedBy: currentUser?.name || "A team member",
-      token, // Send the unhashed token in the email
-    });
-  }
+  await sendInviteEmail({
+    to: normalizedEmail,
+    organizationName: currentUser?.organization?.name || "Our Team",
+    invitedBy: currentUser?.name || "A team member",
+    token, // Send the unhashed token in the email
+  });
 
   revalidatePath("/team");
 
@@ -152,7 +147,10 @@ export async function changeUserRole(
   });
 
   if (!targetUser) throw new Error("User not found");
-  assertSameOrganization(targetUser.organizationId!, user.organizationId);
+  if (!targetUser.organizationId) {
+    throw new Error("User does not belong to an organization.");
+  }
+  assertSameOrganization(targetUser.organizationId, user.organizationId);
 
   await prisma.user.update({
     where: { id: targetUserId },
@@ -186,7 +184,10 @@ export async function removeUserFromWorkspace(targetUserId: string) {
   });
 
   if (!targetUser) throw new Error("User not found");
-  assertSameOrganization(targetUser.organizationId!, user.organizationId);
+  if (!targetUser.organizationId) {
+    throw new Error("User does not belong to an organization.");
+  }
+  assertSameOrganization(targetUser.organizationId, user.organizationId);
 
   await prisma.user.update({
     where: { id: targetUserId },

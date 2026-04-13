@@ -23,6 +23,7 @@ model User {
   sessions            Session[]
   invitesSent         TeamInvite[]  @relation("InvitedBy")
   organization        Organization? @relation(fields: [organizationId], references: [id])
+  supportTickets      SupportTicket[]
 
   @@index([organizationId])
   @@map("user")
@@ -41,6 +42,7 @@ model Organization {
   teamInvites  TeamInvite[]
   users        User[]
   workflows    Workflow[]
+  supportTickets SupportTicket[]
 
   @@map("organization")
 }
@@ -170,6 +172,7 @@ model Workflow {
   organizationId String
   currentVersion Int               @default(1)
   isLocked       Boolean           @default(false)
+  webhookSecret  String?           @unique
   connections    Connection[]
   executions     Execution[]
   nodes          Node[]
@@ -358,7 +361,27 @@ model ExecutionAuditLog {
   @@map("execution_audit_log")
 }
 
+model SupportTicket {
+  id             String         @id @default(cuid())
+  userId         String
+  organizationId String?
+  subject        String
+  description    String
+  status         TicketStatus   @default(OPEN)
+  priority       TicketPriority @default(MEDIUM)
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  deletedAt      DateTime?
+  user           User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  organization   Organization?  @relation(fields: [organizationId], references: [id])
+
+  @@index([userId])
+  @@index([status])
+  @@map("support_ticket")
+}
+
 enum Role {
+  SUPER_ADMIN
   ADMIN
   USER
 }
@@ -374,6 +397,20 @@ enum InviteStatus {
   ACCEPTED
   REVOKED
   EXPIRED
+}
+
+enum TicketStatus {
+  OPEN
+  IN_PROGRESS
+  RESOLVED
+  CLOSED
+}
+
+enum TicketPriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
 }
 
 enum CredentialType {

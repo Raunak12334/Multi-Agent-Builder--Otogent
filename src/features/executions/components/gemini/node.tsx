@@ -63,8 +63,6 @@ export const GeminiNode = memo((props: NodeProps<GeminiNodeType>) => {
       <BaseExecutionNode
         {...props}
         id={props.id}
-        icon="/logos/gemini.svg"
-        name="Gemini"
         status={nodeStatus}
         description={description}
         onSettings={handleOpenSettings}

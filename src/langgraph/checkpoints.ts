@@ -1,5 +1,11 @@
+import type { Prisma } from "@prisma/client";
 import prisma from "@/lib/db";
 import type { WorkflowGraphState } from "./types";
+
+const serializeCheckpointState = (
+  state: WorkflowGraphState,
+): Prisma.InputJsonValue =>
+  JSON.parse(JSON.stringify(state)) as Prisma.InputJsonValue;
 
 export const getLatestExecutionCheckpoint = async (executionId: string) => {
   return prisma.executionCheckpoint.findFirst({
@@ -31,7 +37,7 @@ export const createExecutionCheckpointStore = (
           executionId,
           nodeId: params.nodeId,
           sequence,
-          state: params.state as any,
+          state: serializeCheckpointState(params.state),
         },
       });
     },
@@ -47,7 +53,7 @@ export const updateExecutionCheckpointState = async (params: {
       id: params.checkpointId,
     },
     data: {
-      state: params.state as any,
+      state: serializeCheckpointState(params.state),
     },
   });
 };

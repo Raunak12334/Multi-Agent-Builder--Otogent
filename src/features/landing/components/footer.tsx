@@ -37,12 +37,7 @@ export function Footer() {
         <div className="grid items-start gap-10 sm:grid-cols-2 lg:grid-cols-4">
           <div className="self-start">
             <div className="mb-3 flex items-center gap-2.5">
-              <Image
-                src="/logo.svg"
-                alt="Otogent"
-                width={24}
-                height={24}
-              />
+              <Image src="/logo.svg" alt="Otogent" width={24} height={24} />
               <span className="font-brand text-xl font-bold">
                 oto<span className="text-primary">gent</span>
               </span>

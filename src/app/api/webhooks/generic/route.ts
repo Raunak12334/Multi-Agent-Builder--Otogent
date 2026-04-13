@@ -56,11 +56,37 @@ const handleWebhookRequest = async (request: NextRequest) => {
     const url = new URL(request.url);
     const workflowId = url.searchParams.get("workflowId");
     const nodeId = url.searchParams.get("nodeId");
+    const secret = url.searchParams.get("secret");
 
     if (!workflowId || !nodeId) {
       return createWebhookResponse(400, {
         success: false,
         error: "Missing workflowId or nodeId",
+      });
+    }
+
+    // Get the workflow and check if it exists and has the correct secret
+    const workflow = await prisma.workflow.findUnique({
+      where: { id: workflowId },
+      select: {
+        id: true,
+        organizationId: true,
+        webhookSecret: true,
+      },
+    });
+
+    if (!workflow) {
+      return createWebhookResponse(404, {
+        success: false,
+        error: "Workflow not found",
+      });
+    }
+
+    // Verify webhook secret if set
+    if (workflow.webhookSecret && workflow.webhookSecret !== secret) {
+      return createWebhookResponse(401, {
+        success: false,
+        error: "Invalid webhook secret",
       });
     }
 
