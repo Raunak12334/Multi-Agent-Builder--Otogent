@@ -77,14 +77,22 @@ export const workflowsRouter = createTRPCRouter({
           })),
         });
 
+        const uniqueTemplateEdges = new Map<string, any>();
+        for (const edge of template.edges) {
+          const key = `${nodeIdMap.get(edge.source) ?? edge.source}-${nodeIdMap.get(edge.target) ?? edge.target}-${edge.sourceHandle || "main"}-${edge.targetHandle || "main"}`;
+          if (!uniqueTemplateEdges.has(key)) {
+            uniqueTemplateEdges.set(key, {
+              workflowId: workflow.id,
+              fromNodeId: nodeIdMap.get(edge.source) ?? edge.source,
+              toNodeId: nodeIdMap.get(edge.target) ?? edge.target,
+              fromOutput: edge.sourceHandle || "main",
+              toInput: edge.targetHandle || "main",
+            });
+          }
+        }
+
         await tx.connection.createMany({
-          data: template.edges.map((edge) => ({
-            workflowId: workflow.id,
-            fromNodeId: nodeIdMap.get(edge.source) ?? edge.source,
-            toNodeId: nodeIdMap.get(edge.target) ?? edge.target,
-            fromOutput: edge.sourceHandle || "main",
-            toInput: edge.targetHandle || "main",
-          })),
+          data: Array.from(uniqueTemplateEdges.values()),
         });
 
         return workflow;
@@ -148,15 +156,23 @@ export const workflowsRouter = createTRPCRouter({
           })),
         });
 
-        // Create connections
+        // Create connections with de-duplication to prevent unique constraint failures
+        const uniqueEdges = new Map<string, any>();
+        for (const edge of edges) {
+          const key = `${edge.source}-${edge.target}-${edge.sourceHandle || "main"}-${edge.targetHandle || "main"}`;
+          if (!uniqueEdges.has(key)) {
+            uniqueEdges.set(key, {
+              workflowId: id,
+              fromNodeId: edge.source,
+              toNodeId: edge.target,
+              fromOutput: edge.sourceHandle || "main",
+              toInput: edge.targetHandle || "main",
+            });
+          }
+        }
+
         await tx.connection.createMany({
-          data: edges.map((edge) => ({
-            workflowId: id,
-            fromNodeId: edge.source,
-            toNodeId: edge.target,
-            fromOutput: edge.sourceHandle || "main",
-            toInput: edge.targetHandle || "main",
-          })),
+          data: Array.from(uniqueEdges.values()),
         });
 
         // Update workflow's updateAt timestamp
